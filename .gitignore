@@ -1,5 +1,6 @@
 *.json
 *.md
 *.xml
-
+# Unignore README.md
+!README.md
 __pycache__/
