@@ -1,4 +1,5 @@
 *.json
 *.md
+*.xml
 
 __pycache__/

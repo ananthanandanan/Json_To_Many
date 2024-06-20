@@ -259,17 +259,19 @@ class JsonToMarkdownV3:
             self.handle_item(item, "")
 
     def handle_item(self, item, prefix):
-        if "parts" in item and item["parts"]:
-            for part in item["parts"]:
-                new_prefix = (
-                    f"{prefix}{item.get('code', '')} > "
-                    if prefix
-                    else f"{item.get('code', '')}"
-                )
-                self.handle_item(part, new_prefix)
+        current_code = item.get("code", "").strip()
+        if prefix:
+            prefix = f"{prefix} > {current_code}"  # Correctly format with ' > ' for non-root items
         else:
-            codes = f"{prefix}{item.get('code', '').strip()}"
-            self.add_text(f"  - {codes}")
+            prefix = current_code  # Direct assignment for root item without leading '>'
+
+        if "parts" in item and item["parts"]:
+            # If the item has parts, recursively handle each
+            for part in item["parts"]:
+                self.handle_item(part, prefix)
+        else:
+            # If no more parts, print the accumulated codes and specs
+            self.add_text(f"  - {prefix}")
             self.parse_specs(item.get("specs", []))
 
     def parse_specs(self, specs):

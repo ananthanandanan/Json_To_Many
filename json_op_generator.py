@@ -13,4 +13,4 @@ for item in data:
     code = item["code"]
     filename = os.path.join("OP", f"{code}.json")
     with open(filename, "w") as f:
-        json.dump(item, f, indent=2)
+        json.dump([item], f, indent=2)
