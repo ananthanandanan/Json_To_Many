@@ -8,6 +8,37 @@ class JsonToMarkdown:
         self.markdown_lines = []
 
     def convert(self):
+        self.parse_element(self.data, 1)
+
+    def parse_element(self, element, level):
+        if isinstance(element, dict):
+            for key, value in element.items():
+                self.add_heading(key, level)
+                self.parse_element(value, level + 1)
+        elif isinstance(element, list):
+            for item in element:
+                self.parse_element(item, level)
+        else:
+            self.add_text(element)
+
+    def add_heading(self, text, level):
+        self.markdown_lines.append(f'{"#" * level} {text}\n')
+
+    def add_text(self, text):
+        self.markdown_lines.append(f"{text}\n")
+
+    def save_to_file(self, output_file):
+        with open(output_file, "w") as file:
+            file.writelines(self.markdown_lines)
+
+
+class JsonToMarkdownV1:
+    def __init__(self, json_file):
+        with open(json_file, "r") as file:
+            self.data = json.load(file)
+        self.markdown_lines = []
+
+    def convert(self):
         for item in self.data:
             self.parse_item(item)
 
