@@ -1,19 +1,253 @@
-# Json To Many
+# JsonToMany
 
-## Description
+[![PyPI Version](https://img.shields.io/pypi/v/json_to_many.svg)](https://pypi.org/project/json_to_many/)
+[![License](https://img.shields.io/pypi/l/json_to_many.svg)](https://github.com/ananthanandanan/JsonToMany/blob/main/LICENSE)
+[![Build Status](https://github.com/ananthanandanan/JsonToMany/actions/workflows/ci.yml/badge.svg)](https://github.com/ananthanandanan/JsonToMany/actions)
 
-This is a tool that allows you to convert a JSON file to a many file format. This is useful when you have a JSON file that contains a list of objects and you want to convert it to a file format that can be used in a database or other system that requires a many file format.
+## Overviews
 
-## Current Supported Formats
+**JsonToMany** is a versatile Python package that allows developers to convert JSON data into multiple formats such as Markdown and XML. It simplifies data transformation tasks, making it easier to integrate JSON data with various tools and platforms that require different data formats.
 
-- JSON to Markdown
-- JSON to XML
+The project is managed using **Poetry** for dependency management and packaging, and **Ruff** is used for linting to ensure code quality.
 
-## Upcoming Supported Formats
+## Features
 
-- JSON to CSV
-- JSON to TSV
-- JSON to SQL
-- JSON to YAML
-- JSON to HTML
-- JSON to PDF
+### Current Supported Formats
+
+- **JSON to Markdown**
+- **JSON to XML**
+
+### Upcoming Supported Formats
+
+- **JSON to CSV**
+- **JSON to TSV**
+- **JSON to SQL**
+- **JSON to YAML**
+- **JSON to HTML**
+- **JSON to PDF**
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+  - [Converting JSON to Markdown](#converting-json-to-markdown)
+  - [Converting JSON to XML](#converting-json-to-xml)
+- [Examples](#examples)
+- [Development](#development)
+  - [Setting Up a Development Environment](#setting-up-a-development-environment)
+  - [Coding Guidelines](#coding-guidelines)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+
+## Installation
+
+Install **JsonToMany** using `pip`:
+
+```bash
+pip install json_to_many
+```
+
+Or, if you prefer using Poetry:
+
+```bash
+poetry add json_to_many
+```
+
+## Quick Start
+
+```python
+from json_to_many import convert
+
+# Convert JSON string to Markdown and save to 'output.md'
+json_string = '{"title": "Sample Document", "content": "This is a sample."}'
+convert(json_string, 'markdown', output_file='output.md')
+
+# Convert JSON file to XML and get the converted data
+xml_data = convert('data.json', 'xml', return_data=True)
+print(xml_data)
+```
+
+## Usage
+
+### Converting JSON to Markdown
+
+**From a JSON File:**
+
+```python
+from json_to_many import convert
+
+# Convert JSON file to Markdown and save to 'output.md'
+convert('data.json', 'markdown', output_file='output.md')
+```
+
+**From a JSON String:**
+
+```python
+from json_to_many import convert
+
+json_string = '{"title": "Sample Document", "content": "This is a sample."}'
+
+# Convert JSON string to Markdown and get the converted data
+markdown_data = convert(json_string, 'markdown', return_data=True)
+print(markdown_data)
+```
+
+**Sample Output:**
+
+```markdown
+# title
+
+Sample Document
+
+# content
+
+This is a sample.
+```
+
+### Converting JSON to XML
+
+**From a Python Dictionary:**
+
+```python
+from json_to_many import convert
+
+json_data = {
+    "note": {
+        "to": "Alice",
+        "from": "Bob",
+        "message": "Hello, Alice!"
+    }
+}
+
+# Convert JSON data to XML and save to 'note.xml'
+convert(json_data, 'xml', output_file='note.xml')
+```
+
+**Get Converted XML Data Without Saving:**
+
+```python
+xml_data = convert(json_data, 'xml', return_data=True)
+print(xml_data)
+```
+
+**Sample Output:**
+
+```xml
+<root><note><to>Alice</to><from>Bob</from><message>Hello, Alice!</message></note></root>
+```
+
+## Examples
+
+The `examples` directory contains sample scripts and data to help you get started.
+
+- **JSON to Markdown Conversion**: [json_to_markdown_example.py](examples/json_to_markdown_example.py)
+- **JSON to XML Conversion**: [json_to_xml_example.py](examples/json_to_xml_example.py)
+
+### Running Examples
+
+1. **Clone the Repository**:
+
+   ```bash
+   git clone https://github.com/ananthanandanan/JsonToMany.git
+   cd JsonToMany/examples
+   ```
+
+2. **Install the Package** (if not already installed):
+
+   ```bash
+   pip install json_to_many
+   ```
+
+3. **Run an Example Script**:
+
+   ```bash
+   python json_to_markdown_example.py
+   ```
+
+## Development
+
+The project uses **Poetry** for dependency management and packaging, and **Ruff** for linting and code style enforcement.
+
+### Setting Up a Development Environment
+
+1. **Fork the Repository**:
+
+   Click the "Fork" button at the top right corner of the repository page.
+
+2. **Clone Your Fork**:
+
+   ```bash
+   git clone https://github.com/ananthanandanan/JsonToMany.git
+   cd JsonToMany
+   ```
+
+3. **Install Dependencies**:
+
+   ```bash
+   poetry install
+   ```
+
+4. **Activate the Virtual Environment**:
+
+   ```bash
+   poetry shell
+   ```
+
+5. **Run Tests**:
+
+   ```bash
+   pytest
+   ```
+
+6. **Check Code Quality with Ruff**:
+
+   ```bash
+   ruff check .
+   ```
+
+### Coding Guidelines
+
+- **Code Style**: Follow PEP 8 guidelines. Use **Ruff** for linting and code style enforcement.
+- **Testing**: Write unit tests for new features and bug fixes.
+- **Documentation**: Update documentation and examples to reflect changes.
+
+## Contributing
+
+Contributions are welcome! Here's how you can help:
+
+- **Report Bugs**: If you find a bug, please report it by opening an issue.
+- **Suggest Features**: Have an idea for a new feature? Feel free to share it.
+- **Submit Pull Requests**: If you'd like to fix a bug or implement a feature, you're welcome to contribute code.
+
+### Guidelines for Contributing
+
+1. **Create an Issue**:
+
+   Before starting work on a feature or bug fix, please create an issue to discuss it.
+
+2. **Branch Naming**:
+
+   Use descriptive branch names, e.g., `feature/json-to-yaml` or `bugfix/fix-xml-output`.
+
+3. **Pull Requests**:
+
+   - Include a clear description of the changes.
+   - Reference the issue number.
+   - Ensure all tests pass and code quality checks are successful.
+
+4. **Code Quality**:
+
+   - Run `pytest` to ensure all tests pass.
+   - Run `ruff check .` to ensure code style compliance.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+For questions or support, please open an issue or contact [K N Anantha nandanan](mailto:you@example.com).
+
+---
