@@ -1,0 +1,14 @@
+{
+  "title": "Example JSON",
+  "author": "Your Name",
+  "sections": [
+    {
+      "heading": "Introduction",
+      "content": "This is the introduction."
+    },
+    {
+      "heading": "Conclusion",
+      "content": "This is the conclusion."
+    }
+  ]
+}
