@@ -1,10 +1,15 @@
 {
-  "title": "Example JSON",
-  "author": "Your Name",
+  "title": "Sample Document",
+  "author": "Jane Doe",
+  "date": "2023-10-01",
   "sections": [
     {
       "heading": "Introduction",
       "content": "This is the introduction."
+    },
+    {
+      "heading": "Main Content",
+      "content": "This is the main content."
     },
     {
       "heading": "Conclusion",
