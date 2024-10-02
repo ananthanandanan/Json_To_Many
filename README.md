@@ -1,12 +1,12 @@
-# JsonToMany
+# Json_To_Many
 
 [![PyPI Version](https://img.shields.io/pypi/v/json_to_many.svg)](https://pypi.org/project/json_to_many/)
-[![License](https://img.shields.io/pypi/l/json_to_many.svg)](https://github.com/ananthanandanan/JsonToMany/blob/main/LICENSE)
-[![Build Status](https://github.com/ananthanandanan/JsonToMany/actions/workflows/ci.yml/badge.svg)](https://github.com/ananthanandanan/JsonToMany/actions)
+[![License](https://img.shields.io/pypi/l/json_to_many.svg)](https://github.com/ananthanandanan/Json_To_Many/blob/main/LICENSE)
+[![Build Status](https://github.com/ananthanandanan/Json_To_Many/actions/workflows/ci.yml/badge.svg)](https://github.com/ananthanandanan/Json_To_Many/actions)
 
 ## Overviews
 
-**JsonToMany** is a versatile Python package that allows developers to convert JSON data into multiple formats such as Markdown and XML. It simplifies data transformation tasks, making it easier to integrate JSON data with various tools and platforms that require different data formats.
+**Json_To_Many** is a versatile Python package that allows developers to convert JSON data into multiple formats such as Markdown and XML. It simplifies data transformation tasks, making it easier to integrate JSON data with various tools and platforms that require different data formats.
 
 The project is managed using **Poetry** for dependency management and packaging, and **Ruff** is used for linting to ensure code quality.
 
@@ -43,7 +43,7 @@ The project is managed using **Poetry** for dependency management and packaging,
 
 ## Installation
 
-Install **JsonToMany** using `pip`:
+Install **Json_To_Many** using `pip`:
 
 ```bash
 pip install json_to_many
@@ -150,8 +150,8 @@ The `examples` directory contains sample scripts and data to help you get starte
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/ananthanandanan/JsonToMany.git
-   cd JsonToMany/examples
+   git clone https://github.com/ananthanandanan/Json_To_Many.git
+   cd Json_To_Many/examples
    ```
 
 2. **Install the Package** (if not already installed):
@@ -179,8 +179,8 @@ The project uses **Poetry** for dependency management and packaging, and **Ruff*
 2. **Clone Your Fork**:
 
    ```bash
-   git clone https://github.com/ananthanandanan/JsonToMany.git
-   cd JsonToMany
+   git clone https://github.com/ananthanandanan/Json_To_Many.git
+   cd Json_To_Many
    ```
 
 3. **Install Dependencies**:
