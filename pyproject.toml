@@ -5,14 +5,18 @@ description = "A utility package to convert JSON data to multiple formats like X
 authors = ["ananthanandanan <ananthanandanan@gmail.com>"]
 readme = "README.md"
 keywords = ["json", "converter", "xml", "markdown", "csv"]
-package-mode = false
+packages = [{include = "json_to_many", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
 xmltodict = "^0.13.0"
+pytest = "^8.3.3"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.9"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
 
 [build-system]
 requires = ["poetry-core"]
