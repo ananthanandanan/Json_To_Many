@@ -6,6 +6,7 @@ class JsonToMarkdown(BaseConverter):
     def __init__(self, data):
         super().__init__(data)
         self.markdown_lines = []
+        self.converted_data = None
 
     def converter(self):
         self.parse_elements(self.data, 1)
