@@ -30,7 +30,6 @@ class JsonToXML(BaseConverter):
             parent.text = str(data)
 
     def save_to_file(self, file_name):
-
         tree = ET.ElementTree(self.root)
         tree.write(file_name, encoding=DEFAULT_ENCODING, xml_declaration=True)
 
