@@ -1,9 +1,9 @@
 from .converters import JsonToMarkdown
 from .converters import JsonToXML
 from .converters import JsonToCSV
-from .utils.json_utils import read_json_data
+from .utils import read_json_data
 from .exceptions import UnsupportedFormatError
-from .utils.constants import SUPPORTED_FORMATS
+from .utils import SUPPORTED_FORMATS
 
 
 def convert(json_input, output_format, output_file=None, return_data=False):
