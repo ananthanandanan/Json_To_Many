@@ -395,13 +395,6 @@ def daily_report():
 - **Enterprise**: Early access to enterprise features
 - **Feedback**: Shape roadmap based on your needs
 
-### 📞 **Contact & Discussion**
-
-- **GitHub Issues**: Feature requests and bug reports
-- **Discussions**: Community forum for questions
-- **Email**: [ananthanandanan@gmail.com](mailto:ananthanandanan@gmail.com)
-- **Twitter**: Follow [@json_to_many](https://twitter.com/json_to_many) for updates
-
 ---
 
-_This roadmap is a living document that evolves based on community feedback and market needs. Last updated: December 2024_
+_This roadmap is a living document that evolves based on community feedback and market needs. Last updated: December 2025_
