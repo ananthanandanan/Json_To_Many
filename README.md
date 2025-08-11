@@ -6,9 +6,9 @@
 
 ## Overviews
 
-**Json_To_Many** is a versatile Python package that allows developers to convert JSON data into multiple formats such as Markdown and XML. It simplifies data transformation tasks, making it easier to integrate JSON data with various tools and platforms that require different data formats.
+**Json_To_Many** is a versatile Python package that allows developers to convert JSON data into multiple formats such as Markdown, XML, and CSV. It simplifies data transformation tasks, making it easier to integrate JSON data with various tools and platforms that require different data formats.
 
-The project is managed using **Poetry** for dependency management and packaging, and **Ruff** is used for linting to ensure code quality.
+The project is managed using **uv** for dependency management and packaging, and **Ruff** is used for linting to ensure code quality.
 
 ## Features
 
@@ -16,10 +16,10 @@ The project is managed using **Poetry** for dependency management and packaging,
 
 - **JSON to Markdown**
 - **JSON to XML**
+- **JSON to CSV**
 
 ### Upcoming Supported Formats
 
-- **JSON to CSV**
 - **JSON to TSV**
 - **JSON to SQL**
 - **JSON to YAML**
@@ -33,6 +33,7 @@ The project is managed using **Poetry** for dependency management and packaging,
 - [Usage](#usage)
   - [Converting JSON to Markdown](#converting-json-to-markdown)
   - [Converting JSON to XML](#converting-json-to-xml)
+  - [Converting JSON to CSV](#converting-json-to-csv)
 - [Examples](#examples)
 - [Development](#development)
   - [Setting Up a Development Environment](#setting-up-a-development-environment)
@@ -49,10 +50,10 @@ Install **Json_To_Many** using `pip`:
 pip install json_to_many
 ```
 
-Or, if you prefer using Poetry:
+Or, if you prefer using uv:
 
 ```bash
-poetry add json_to_many
+uv add json_to_many
 ```
 
 ## Quick Start
@@ -138,12 +139,46 @@ print(xml_data)
 <root><note><to>Alice</to><from>Bob</from><message>Hello, Alice!</message></note></root>
 ```
 
+### Converting JSON to CSV
+
+**From a Python List of Dictionaries:**
+
+```python
+from json_to_many import convert
+
+json_data = [
+    {"name": "Alice", "age": 30, "city": "New York"},
+    {"name": "Bob", "age": 25, "city": "Los Angeles"}
+]
+
+# Convert JSON data to CSV and save to 'data.csv'
+convert(json_data, 'csv', output_file='data.csv')
+```
+
+**Get Converted CSV Data Without Saving:**
+
+```python
+csv_data = convert(json_data, 'csv', return_data=True)
+print(csv_data)
+```
+
+**Sample Output:**
+
+```csv
+name,age,city
+Alice,30,New York
+Bob,25,Los Angeles
+```
+
+**Note:** The CSV converter automatically flattens nested JSON structures and handles complex data types appropriately.
+
 ## Examples
 
 The `examples` directory contains sample scripts and data to help you get started.
 
 - **JSON to Markdown Conversion**: [json_to_markdown_example.py](examples/json_to_markdown_example.py)
 - **JSON to XML Conversion**: [json_to_xml_example.py](examples/json_to_xml_example.py)
+- **JSON to CSV Conversion**: [json_to_csv_example.py](examples/json_to_csv_example.py)
 
 ### Running Examples
 
@@ -154,7 +189,13 @@ The `examples` directory contains sample scripts and data to help you get starte
    cd Json_To_Many/examples
    ```
 
-2. **Install the Package** (if not already installed):
+2. **Install Dependencies** (for development):
+
+   ```bash
+   uv sync
+   ```
+
+   Or install the package directly:
 
    ```bash
    pip install json_to_many
@@ -163,12 +204,14 @@ The `examples` directory contains sample scripts and data to help you get starte
 3. **Run an Example Script**:
 
    ```bash
+   uv run python json_to_markdown_example.py
+   # or if installed globally:
    python json_to_markdown_example.py
    ```
 
 ## Development
 
-The project uses **Poetry** for dependency management and packaging, and **Ruff** for linting and code style enforcement.
+The project uses **uv** for dependency management and packaging, and **Ruff** for linting and code style enforcement.
 
 ### Setting Up a Development Environment
 
@@ -186,25 +229,25 @@ The project uses **Poetry** for dependency management and packaging, and **Ruff*
 3. **Install Dependencies**:
 
    ```bash
-   poetry install
+   uv sync
    ```
 
-4. **Activate the Virtual Environment**:
+4. **Run Tests**:
 
    ```bash
-   poetry shell
+   uv run pytest
    ```
 
-5. **Run Tests**:
+5. **Check Code Quality with Ruff**:
 
    ```bash
-   pytest
+   uv run ruff check .
    ```
 
-6. **Check Code Quality with Ruff**:
+6. **Build the Package**:
 
    ```bash
-   ruff check .
+   uv build
    ```
 
 ### Coding Guidelines
@@ -239,8 +282,8 @@ Contributions are welcome! Here's how you can help:
 
 4. **Code Quality**:
 
-   - Run `pytest` to ensure all tests pass.
-   - Run `ruff check .` to ensure code style compliance.
+   - Run `uv run pytest` to ensure all tests pass.
+   - Run `uv run ruff check .` to ensure code style compliance.
 
 ## License
 
@@ -248,6 +291,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-For questions or support, please open an issue or contact [K N Anantha nandanan](mailto:you@example.com).
+For questions or support, please open an issue or contact [K N Anantha nandanan](mailto:ananthanandanan@gmail.com).
 
 ---

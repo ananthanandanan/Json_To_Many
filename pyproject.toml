@@ -1,35 +1,35 @@
-[tool.poetry]
+[project]
 name = "json_to_many"
 version = "0.1.0"
 description = "A utility package to convert JSON data to multiple formats like XML, Markdown, CSV, etc."
-authors = ["ananthanandanan <ananthanandanan@gmail.com>"]
 readme = "README.md"
-keywords = ["json", "converter", "xml", "markdown", "csv"]
-packages = [{include = "json_to_many", from = "src"}]
-
+requires-python = ">=3.10,<3.13"
+authors = [{ name = "ananthanandanan", email = "ananthanandanan@gmail.com" }]
+keywords = ["csv", "converter", "json", "markdown", "xml"]
 classifiers = [
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "License :: OSI Approved :: MIT License",
-  "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
+dependencies = ["xmltodict>=0.13.0,<0.14"]
 
-include = ["README.md", "LICENSE"]
-exclude = ["tests/*", "docs/*", "examples/*"]
+[dependency-groups]
+dev = ["pytest>=8.3.3,<9", "ruff>=0.4.9,<0.5"]
 
-[tool.poetry.dependencies]
-python = ">=3.10,<3.13"
-xmltodict = "^0.13.0"
+[tool.hatch.build.targets.sdist]
+include = ["LICENSE", "README.md", "src/json_to_many"]
+exclude = ["docs/*", "examples/*", "tests/*"]
 
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.4.9"
-pytest = "^8.3.3"
+[tool.hatch.build.targets.wheel]
+include = ["LICENSE", "README.md", "src/json_to_many"]
+exclude = ["docs/*", "examples/*", "tests/*"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src/json_to_many" = "json_to_many"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
