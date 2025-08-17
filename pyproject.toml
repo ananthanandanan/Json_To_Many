@@ -24,10 +24,10 @@ classifiers = [
 dependencies = ["xmltodict>=0.13.0,<0.14"]
 
 [project.urls]
-Homepage = "https://github.com/ananthanandanan/Json2Many"
-Repository = "https://github.com/ananthanandanan/Json2Many"
-Documentation = "https://github.com/ananthanandanan/Json2Many#readme"
-"Bug Reports" = "https://github.com/ananthanandanan/Json2Many/issues"
+Homepage = "https://github.com/ananthanandanan/Json_To_Many"
+Repository = "https://github.com/ananthanandanan/Json_To_Many"
+Documentation = "https://github.com/ananthanandanan/Json_To_Many/tree/main?tab=readme-ov-file#quick-start"
+"Bug Reports" = "https://github.com/ananthanandanan/Json_To_Many/issues"
 
 [dependency-groups]
 dev = ["pytest>=8.3.3,<9", "ruff>=0.4.9,<0.5", "twine>=6.1.0"]
