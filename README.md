@@ -22,6 +22,8 @@ In today's interconnected digital ecosystem, **JSON has become the lingua franca
 
 The project is managed using **uv** for dependency management and packaging, and **Ruff** is used for linting to ensure code quality.
 
+> **Note:** This is a humble side project built out of passion for making data format conversions easier and more accessible.
+
 ## Features
 
 ### Current Supported Formats
@@ -288,13 +290,11 @@ Contributions are welcome! Here's how you can help:
    Use descriptive branch names, e.g., `feature/json-to-yaml` or `bugfix/fix-xml-output`.
 
 3. **Pull Requests**:
-
    - Include a clear description of the changes.
    - Reference the issue number.
    - Ensure all tests pass and code quality checks are successful.
 
 4. **Code Quality**:
-
    - Run `uv run pytest` to ensure all tests pass.
    - Run `uv run ruff check .` to ensure code style compliance.
 
