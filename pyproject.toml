@@ -21,7 +21,7 @@ classifiers = [
     "Topic :: Text Processing :: Markup",
     "Topic :: Utilities",
 ]
-dependencies = ["xmltodict>=0.13.0,<0.14"]
+dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/ananthanandanan/Json_To_Many"

@@ -6,7 +6,7 @@ from .exceptions import UnsupportedFormatError
 from .utils import SUPPORTED_FORMATS
 
 
-def convert(json_input, output_format, output_file=None, return_data=False):
+def convert(json_input, output_format, output_file=None, return_data=False, **options):
     """
     Main entry point for converting JSON to various formats.
 
@@ -14,17 +14,18 @@ def convert(json_input, output_format, output_file=None, return_data=False):
     :param output_format: Desired output format ('markdown', 'xml', 'csv').
     :param output_file: (Optional) Path to the output file.
     :param return_data: (Optional) If True, returns the converted data.
+    :param options: Converter-specific options passed through to the converter.
     :return: Converted data if return_data is True, else None.
     """
 
     data = read_json_data(json_input)
 
     if output_format.lower() == "markdown":
-        converter = JsonToMarkdown(data)
+        converter = JsonToMarkdown(data, **options)
     elif output_format.lower() == "xml":
-        converter = JsonToXML(data)
+        converter = JsonToXML(data, **options)
     elif output_format.lower() == "csv":
-        converter = JsonToCSV(data)
+        converter = JsonToCSV(data, **options)
     else:
         raise UnsupportedFormatError(
             f"Unsupported format: {output_format}. Supported formats are: {SUPPORTED_FORMATS}"

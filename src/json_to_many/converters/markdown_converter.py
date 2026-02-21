@@ -3,8 +3,8 @@ from ..utils.constants import DEFAULT_ENCODING
 
 
 class JsonToMarkdown(BaseConverter):
-    def __init__(self, data):
-        super().__init__(data)
+    def __init__(self, data, **options):
+        super().__init__(data, **options)
         self.markdown_lines = []
         self.converted_data = None
 

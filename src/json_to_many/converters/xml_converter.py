@@ -4,8 +4,8 @@ from ..utils.constants import DEFAULT_ENCODING
 
 
 class JsonToXML(BaseConverter):
-    def __init__(self, data):
-        super().__init__(data)
+    def __init__(self, data, **options):
+        super().__init__(data, **options)
         self.root = ET.Element("root")
 
     def converter(self):

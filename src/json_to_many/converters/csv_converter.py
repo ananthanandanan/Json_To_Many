@@ -6,8 +6,8 @@ from ..utils.json_utils import flatten_json
 
 
 class JsonToCSV(BaseConverter):
-    def __init__(self, data):
-        super().__init__(data)
+    def __init__(self, data, **options):
+        super().__init__(data, **options)
         self.csv_data = []
         self.fieldnames = []
         self.converted_data = None
