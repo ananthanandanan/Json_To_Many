@@ -46,6 +46,7 @@ The project is managed using **uv** for dependency management and packaging, and
 - [Quick Start](#quick-start)
 - [Usage](#usage)
   - [Converting JSON to Markdown](#converting-json-to-markdown)
+    - [Markdown Options](#markdown-options)
   - [Converting JSON to XML](#converting-json-to-xml)
   - [Converting JSON to CSV](#converting-json-to-csv)
 - [Examples](#examples)
@@ -120,6 +121,137 @@ Sample Document
 # content
 
 This is a sample.
+```
+
+### Markdown Options
+
+The Markdown converter accepts optional keyword arguments to customise its output. All options are passed directly to `convert()`.
+
+#### Layout options
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `title` | `str` | `None` | Prepends `# {title}` at the top of the document |
+| `heading_offset` | `int` | `0` | Shifts all heading levels by this amount (e.g. `1` makes top-level keys H2) |
+| `max_heading_level` | `int` | `6` | Keys deeper than this render as `**bold**` instead of headings |
+| `bullet_lists` | `bool` | `True` | Renders lists of primitives as `- item` bullet points |
+
+**Example:**
+
+```python
+from json_to_many import convert
+
+data = {
+    "Project": {
+        "Name": "MyApp",
+        "Tech": ["Python", "FastAPI"],
+    }
+}
+
+# Shift headings down one level and add a document title
+md = convert(data, "markdown", return_data=True,
+             title="Project Report",
+             heading_offset=1,
+             bullet_lists=True)
+print(md)
+```
+
+```markdown
+# Project Report
+
+## Project
+
+### Name
+
+MyApp
+
+### Tech
+
+- Python
+- FastAPI
+```
+
+#### Tables
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `table_for_lists` | `bool` | `False` | Renders a list of dicts with common keys as a GFM pipe table |
+
+**Example:**
+
+```python
+data = {
+    "Users": [
+        {"name": "Alice", "role": "admin"},
+        {"name": "Bob",   "role": "user"},
+    ]
+}
+
+md = convert(data, "markdown", return_data=True, table_for_lists=True)
+```
+
+```markdown
+# Users
+
+| name | role |
+| --- | --- |
+| Alice | admin |
+| Bob | user |
+```
+
+#### Frontmatter
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `frontmatter` | `dict` | `None` | Emits a YAML frontmatter block (for static site generators, Obsidian, etc.) |
+
+Supports `str`, `int`, `float`, `bool`, and `None` values. No external dependencies required.
+
+**Example:**
+
+```python
+md = convert(data, "markdown", return_data=True,
+             frontmatter={"title": "API Docs", "date": "2025-02-21", "draft": False})
+```
+
+```markdown
+---
+title: API Docs
+date: 2025-02-21
+draft: false
+---
+
+...content...
+```
+
+#### Code blocks
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `code_block_keys` | `list` | `[]` | Values for these keys are rendered as fenced code blocks |
+
+**Example:**
+
+```python
+data = {
+    "endpoint": "/users",
+    "example_request": '{"filter": "active"}',
+}
+
+md = convert(data, "markdown", return_data=True,
+             code_block_keys=["example_request"])
+```
+
+```markdown
+# endpoint
+
+/users
+
+# example_request
+
+\`\`\`example_request
+{"filter": "active"}
+\`\`\`
 ```
 
 ### Converting JSON to XML
@@ -270,6 +402,8 @@ The project uses **uv** for dependency management and packaging, and **Ruff** fo
 - **Code Style**: Follow PEP 8 guidelines. Use **Ruff** for linting and code style enforcement.
 - **Testing**: Write unit tests for new features and bug fixes.
 - **Documentation**: Update documentation and examples to reflect changes.
+
+> **Maintainers:** See [RELEASING.md](RELEASING.md) for the full release process (version bump, tagging, GitHub Release, and PyPI publish).
 
 ## Contributing
 

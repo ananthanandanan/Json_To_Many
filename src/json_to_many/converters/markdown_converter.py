@@ -29,7 +29,10 @@ class JsonToMarkdown(BaseConverter):
             elif isinstance(value, (str, int, float)):
                 val_str = str(value)
                 if isinstance(value, str) and (
-                    ":" in val_str or "#" in val_str or "\n" in val_str or '"' in val_str
+                    ":" in val_str
+                    or "#" in val_str
+                    or "\n" in val_str
+                    or '"' in val_str
                 ):
                     val_str = val_str.replace("\\", "\\\\").replace('"', '\\"')
                     val_str = f'"{val_str}"'
@@ -57,9 +60,7 @@ class JsonToMarkdown(BaseConverter):
             self._add_value(element, parent_key)
 
     def _is_list_of_primitives(self, lst):
-        return len(lst) > 0 and all(
-            not isinstance(x, (dict, list)) for x in lst
-        )
+        return len(lst) > 0 and all(not isinstance(x, (dict, list)) for x in lst)
 
     def _is_list_of_dicts_with_common_keys(self, lst):
         if len(lst) == 0 or not all(isinstance(x, dict) for x in lst):

@@ -88,9 +88,7 @@ class TestJsonToMarkdown(unittest.TestCase):
             "endpoint": "/users",
             "example_request": '{"filter": "active"}',
         }
-        converter = JsonToMarkdown(
-            data, code_block_keys=["example_request"]
-        )
+        converter = JsonToMarkdown(data, code_block_keys=["example_request"])
         converter.converter()
         out = converter.get_converted_data()
         self.assertIn("```example_request\n", out)
