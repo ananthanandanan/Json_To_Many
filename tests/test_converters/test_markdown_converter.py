@@ -46,6 +46,58 @@ class TestJsonToMarkdown(unittest.TestCase):
         expected = "# API Reference\n\n# Author\n\nJane\n\n"
         self.assertEqual(converter.get_converted_data(), expected)
 
+    def test_table_for_lists(self):
+        data = {
+            "Users": [
+                {"name": "Alice", "role": "admin"},
+                {"name": "Bob", "role": "user"},
+            ]
+        }
+        converter = JsonToMarkdown(data, table_for_lists=True)
+        converter.converter()
+        out = converter.get_converted_data()
+        self.assertIn("# Users\n\n", out)
+        self.assertIn("| name | role |\n", out)
+        self.assertIn("| --- | --- |\n", out)
+        self.assertIn("| Alice | admin |\n", out)
+        self.assertIn("| Bob | user |\n", out)
+
+    def test_table_for_lists_default_false(self):
+        data = {"Users": [{"name": "Alice"}, {"name": "Bob"}]}
+        converter = JsonToMarkdown(data)
+        converter.converter()
+        out = converter.get_converted_data()
+        self.assertNotIn("| name |", out)
+        self.assertIn("# Users\n\n", out)
+
+    def test_frontmatter(self):
+        data = {"Author": "Jane"}
+        converter = JsonToMarkdown(
+            data, frontmatter={"title": "Doc", "version": "1.0", "draft": False}
+        )
+        converter.converter()
+        out = converter.get_converted_data()
+        self.assertTrue(out.startswith("---\n"))
+        self.assertIn("title: Doc\n", out)
+        self.assertIn("version: 1.0\n", out)
+        self.assertIn("draft: false\n", out)
+        self.assertIn("---\n\n", out)
+
+    def test_code_block_keys(self):
+        data = {
+            "endpoint": "/users",
+            "example_request": '{"filter": "active"}',
+        }
+        converter = JsonToMarkdown(
+            data, code_block_keys=["example_request"]
+        )
+        converter.converter()
+        out = converter.get_converted_data()
+        self.assertIn("```example_request\n", out)
+        self.assertIn('{"filter": "active"}', out)
+        self.assertIn("```\n\n", out)
+        self.assertIn("# endpoint\n\n/users\n\n", out)
+
 
 if __name__ == "__main__":
     unittest.main()

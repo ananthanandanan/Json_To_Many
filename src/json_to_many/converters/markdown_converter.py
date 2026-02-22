@@ -9,30 +9,98 @@ class JsonToMarkdown(BaseConverter):
         self.converted_data = None
 
     def converter(self):
+        frontmatter = self.options.get("frontmatter")
+        if frontmatter is not None:
+            self._emit_frontmatter(frontmatter)
         title = self.options.get("title")
         if title is not None:
             self.markdown_lines.append(f"# {title}\n\n")
         self.parse_elements(self.data, 1)
         self.converted_data = "".join(self.markdown_lines)
 
-    def parse_elements(self, element, level):
+    def _emit_frontmatter(self, fm):
+        """Emit YAML frontmatter block for simple key:value pairs (no PyYAML needed)."""
+        self.markdown_lines.append("---\n")
+        for key, value in fm.items():
+            if isinstance(value, bool):
+                val_str = "true" if value else "false"
+            elif value is None:
+                val_str = "null"
+            elif isinstance(value, (str, int, float)):
+                val_str = str(value)
+                if isinstance(value, str) and (
+                    ":" in val_str or "#" in val_str or "\n" in val_str or '"' in val_str
+                ):
+                    val_str = val_str.replace("\\", "\\\\").replace('"', '\\"')
+                    val_str = f'"{val_str}"'
+            else:
+                continue
+            self.markdown_lines.append(f"{key}: {val_str}\n")
+        self.markdown_lines.append("---\n\n")
+
+    def parse_elements(self, element, level, parent_key=None):
         if isinstance(element, dict):
             for key, value in element.items():
                 self.add_heading(key, level)
-                self.parse_elements(value, level + 1)
+                self.parse_elements(value, level + 1, parent_key=key)
         elif isinstance(element, list):
             if self._is_list_of_primitives(element):
                 self.add_primitive_list(element)
+            elif self._is_list_of_dicts_with_common_keys(element) and self.options.get(
+                "table_for_lists", False
+            ):
+                self.add_table(element, level, parent_key)
             else:
                 for item in element:
                     self.parse_elements(item, level)
         else:
-            self.add_text(element)
+            self._add_value(element, parent_key)
 
     def _is_list_of_primitives(self, lst):
         return len(lst) > 0 and all(
             not isinstance(x, (dict, list)) for x in lst
         )
+
+    def _is_list_of_dicts_with_common_keys(self, lst):
+        if len(lst) == 0 or not all(isinstance(x, dict) for x in lst):
+            return False
+        common = set(lst[0].keys())
+        for item in lst[1:]:
+            common &= set(item.keys())
+        return len(common) >= 1
+
+    def _add_value(self, value, key=None):
+        code_block_keys = self.options.get("code_block_keys") or []
+        if key is not None and key in code_block_keys:
+            self.add_code_block(str(value), key)
+        else:
+            self.add_text(value)
+
+    def add_table(self, items, level, parent_key):
+        """Emit a GFM pipe table for a list of dicts with common keys."""
+        all_keys = []
+        seen = set()
+        for item in items:
+            for k in item.keys():
+                if k not in seen:
+                    seen.add(k)
+                    all_keys.append(k)
+        header = "| " + " | ".join(all_keys) + " |"
+        sep = "| " + " | ".join("---" for _ in all_keys) + " |"
+        self.markdown_lines.append(header + "\n")
+        self.markdown_lines.append(sep + "\n")
+        for item in items:
+            row = "| " + " | ".join(str(item.get(k, "")) for k in all_keys) + " |"
+            self.markdown_lines.append(row + "\n")
+        self.markdown_lines.append("\n")
+
+    def add_code_block(self, content, language_hint):
+        """Emit a fenced code block with the key name as language hint."""
+        self.markdown_lines.append(f"```{language_hint}\n")
+        self.markdown_lines.append(content)
+        if not content.endswith("\n"):
+            self.markdown_lines.append("\n")
+        self.markdown_lines.append("```\n\n")
 
     def add_heading(self, text, level):
         offset = self.options.get("heading_offset", 0)
