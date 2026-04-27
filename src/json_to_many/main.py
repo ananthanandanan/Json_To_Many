@@ -6,16 +6,15 @@ from .exceptions import UnsupportedFormatError
 from .utils import SUPPORTED_FORMATS
 
 
-def convert(json_input, output_format, output_file=None, return_data=False, **options):
+def convert(json_input, output_format, output_file=None, **options):
     """
     Main entry point for converting JSON to various formats.
 
     :param json_input: Path to JSON file, a JSON string, or a Python data structure.
     :param output_format: Desired output format ('markdown', 'xml', 'csv').
     :param output_file: (Optional) Path to the output file.
-    :param return_data: (Optional) If True, returns the converted data.
     :param options: Converter-specific options passed through to the converter.
-    :return: Converted data if return_data is True, else None.
+    :return: ConversionResult with .data (string), .format, and .stats.
     """
 
     data = read_json_data(json_input)
@@ -36,5 +35,4 @@ def convert(json_input, output_format, output_file=None, return_data=False, **op
     if output_file:
         converter.save_to_file(output_file)
 
-    if return_data:
-        return converter.get_converted_data()
+    return converter.get_converted_data()

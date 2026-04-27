@@ -1,5 +1,6 @@
 import unittest
 from json_to_many.converters.markdown_converter import JsonToMarkdown
+from json_to_many.result import ConversionResult
 
 
 class TestJsonToMarkdown(unittest.TestCase):
@@ -8,43 +9,44 @@ class TestJsonToMarkdown(unittest.TestCase):
         converter = JsonToMarkdown(data)
         converter.converter()
         expected_output = "# title\n\nTest\n\n# content\n\nThis is a test.\n\n"
-        self.assertEqual(converter.get_converted_data(), expected_output)
+        self.assertEqual(converter.get_converted_data().data, expected_output)
 
     def test_heading_offset(self):
         data = {"Project": {"Name": "MyApp"}}
         converter = JsonToMarkdown(data, heading_offset=1)
         converter.converter()
         expected = "## Project\n\n### Name\n\nMyApp\n\n"
-        self.assertEqual(converter.get_converted_data(), expected)
+        self.assertEqual(converter.get_converted_data().data, expected)
 
     def test_max_heading_level(self):
         data = {"A": {"B": {"C": {"D": {"E": {"F": {"G": "deep"}}}}}}}
         converter = JsonToMarkdown(data, max_heading_level=3)
         converter.converter()
-        self.assertIn("### C\n\n", converter.get_converted_data())
-        self.assertIn("**D**\n\n", converter.get_converted_data())
-        self.assertIn("**E**\n\n", converter.get_converted_data())
+        out = converter.get_converted_data().data
+        self.assertIn("### C\n\n", out)
+        self.assertIn("**D**\n\n", out)
+        self.assertIn("**E**\n\n", out)
 
     def test_bullet_lists_true(self):
         data = {"Tech": ["Python", "FastAPI"]}
         converter = JsonToMarkdown(data, bullet_lists=True)
         converter.converter()
         expected = "# Tech\n\n- Python\n- FastAPI\n\n"
-        self.assertEqual(converter.get_converted_data(), expected)
+        self.assertEqual(converter.get_converted_data().data, expected)
 
     def test_bullet_lists_false(self):
         data = {"Tech": ["Python", "FastAPI"]}
         converter = JsonToMarkdown(data, bullet_lists=False)
         converter.converter()
         expected = "# Tech\n\nPython\n\nFastAPI\n\n"
-        self.assertEqual(converter.get_converted_data(), expected)
+        self.assertEqual(converter.get_converted_data().data, expected)
 
     def test_title(self):
         data = {"Author": "Jane"}
         converter = JsonToMarkdown(data, title="API Reference")
         converter.converter()
         expected = "# API Reference\n\n# Author\n\nJane\n\n"
-        self.assertEqual(converter.get_converted_data(), expected)
+        self.assertEqual(converter.get_converted_data().data, expected)
 
     def test_table_for_lists(self):
         data = {
@@ -55,7 +57,7 @@ class TestJsonToMarkdown(unittest.TestCase):
         }
         converter = JsonToMarkdown(data, table_for_lists=True)
         converter.converter()
-        out = converter.get_converted_data()
+        out = converter.get_converted_data().data
         self.assertIn("# Users\n\n", out)
         self.assertIn("| name | role |\n", out)
         self.assertIn("| --- | --- |\n", out)
@@ -66,7 +68,7 @@ class TestJsonToMarkdown(unittest.TestCase):
         data = {"Users": [{"name": "Alice"}, {"name": "Bob"}]}
         converter = JsonToMarkdown(data)
         converter.converter()
-        out = converter.get_converted_data()
+        out = converter.get_converted_data().data
         self.assertNotIn("| name |", out)
         self.assertIn("# Users\n\n", out)
 
@@ -76,7 +78,7 @@ class TestJsonToMarkdown(unittest.TestCase):
             data, frontmatter={"title": "Doc", "version": "1.0", "draft": False}
         )
         converter.converter()
-        out = converter.get_converted_data()
+        out = converter.get_converted_data().data
         self.assertTrue(out.startswith("---\n"))
         self.assertIn("title: Doc\n", out)
         self.assertIn("version: 1.0\n", out)
@@ -90,11 +92,21 @@ class TestJsonToMarkdown(unittest.TestCase):
         }
         converter = JsonToMarkdown(data, code_block_keys=["example_request"])
         converter.converter()
-        out = converter.get_converted_data()
+        out = converter.get_converted_data().data
         self.assertIn("```example_request\n", out)
         self.assertIn('{"filter": "active"}', out)
         self.assertIn("```\n\n", out)
         self.assertIn("# endpoint\n\n/users\n\n", out)
+
+    def test_returns_conversion_result(self):
+        data = {"a": "1", "b": "2"}
+        converter = JsonToMarkdown(data)
+        converter.converter()
+        result = converter.get_converted_data()
+        self.assertIsInstance(result, ConversionResult)
+        self.assertEqual(result.format, "markdown")
+        self.assertEqual(result.stats.rows, 2)
+        self.assertEqual(result.stats.warnings, [])
 
 
 if __name__ == "__main__":
