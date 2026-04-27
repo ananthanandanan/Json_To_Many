@@ -3,6 +3,7 @@ import io
 from .base_converter import BaseConverter
 from ..utils.constants import DEFAULT_ENCODING
 from ..utils.json_utils import flatten_json
+from ..result import ConversionResult, ConversionStats
 
 
 class JsonToCSV(BaseConverter):
@@ -25,6 +26,9 @@ class JsonToCSV(BaseConverter):
         self.csv_data = [flatten_json(item) for item in self.data]
         self.fieldnames = self.get_fieldnames(self.csv_data)
         self.converted_data = self.generate_csv_string()
+        self._stats = ConversionStats(
+            rows=len(self.csv_data), fields=len(self.fieldnames)
+        )
 
     def get_fieldnames(self, data):
         fieldnames = set()
@@ -45,7 +49,6 @@ class JsonToCSV(BaseConverter):
             csvfile.write(self.converted_data)
 
     def get_converted_data(self):
-        """
-        Returns the converted CSV data as a string.
-        """
-        return self.converted_data
+        return ConversionResult(
+            data=self.converted_data, format="csv", stats=self._stats
+        )

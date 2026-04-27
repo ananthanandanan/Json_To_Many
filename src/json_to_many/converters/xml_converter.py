@@ -1,6 +1,7 @@
 from .base_converter import BaseConverter
 import xml.etree.ElementTree as ET
 from ..utils.constants import DEFAULT_ENCODING
+from ..result import ConversionResult, ConversionStats
 
 
 class JsonToXML(BaseConverter):
@@ -10,6 +11,8 @@ class JsonToXML(BaseConverter):
 
     def converter(self):
         self.add_elements(self.data, self.root)
+        rows = len(self.data) if isinstance(self.data, list) else 1
+        self._stats = ConversionStats(rows=rows)
 
     def add_elements(self, data, parent):
         """
@@ -34,6 +37,7 @@ class JsonToXML(BaseConverter):
         tree.write(file_name, encoding=DEFAULT_ENCODING, xml_declaration=True)
 
     def get_converted_data(self):
-        return ET.tostring(self.root, encoding=DEFAULT_ENCODING).decode(
+        xml_str = ET.tostring(self.root, encoding=DEFAULT_ENCODING).decode(
             DEFAULT_ENCODING
         )
+        return ConversionResult(data=xml_str, format="xml", stats=self._stats)

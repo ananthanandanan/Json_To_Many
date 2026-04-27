@@ -1,5 +1,6 @@
 from .base_converter import BaseConverter
 from ..utils.constants import DEFAULT_ENCODING
+from ..result import ConversionResult, ConversionStats
 
 
 class JsonToMarkdown(BaseConverter):
@@ -17,6 +18,8 @@ class JsonToMarkdown(BaseConverter):
             self.markdown_lines.append(f"# {title}\n\n")
         self.parse_elements(self.data, 1)
         self.converted_data = "".join(self.markdown_lines)
+        rows = len(self.data) if isinstance(self.data, list) else len(self.data)
+        self._stats = ConversionStats(rows=rows)
 
     def _emit_frontmatter(self, fm):
         """Emit YAML frontmatter block for simple key:value pairs (no PyYAML needed)."""
@@ -130,4 +133,6 @@ class JsonToMarkdown(BaseConverter):
             file.writelines(self.markdown_lines)
 
     def get_converted_data(self):
-        return self.converted_data
+        return ConversionResult(
+            data=self.converted_data, format="markdown", stats=self._stats
+        )
