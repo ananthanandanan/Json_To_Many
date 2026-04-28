@@ -1,3 +1,18 @@
+## [0.3.0] - 2026-04-28
+
+### 🚀 Features
+
+- Add CHANGELOG and git-cliff configuration
+- Add ConversionResult dataclass and structured return type
+- Add XML and CSV conversion options
+
+### 📚 Documentation
+
+- Refresh README for typed conversion results
+
+### ⚙️ Miscellaneous Tasks
+
+- Add CLAUDE.md
 ## [0.2.0] - 2026-02-22
 
 ### 🚀 Features

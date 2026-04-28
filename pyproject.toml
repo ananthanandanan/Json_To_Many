@@ -1,6 +1,6 @@
 [project]
 name = "json_to_many"
-version = "0.2.0"
+version = "0.3.0"
 description = "A utility package to convert JSON data to multiple formats like XML, Markdown, CSV, etc."
 readme = "README.md"
 license = { file = "LICENSE" }
