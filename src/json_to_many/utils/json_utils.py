@@ -3,7 +3,7 @@ import json
 from .constants import DEFAULT_ENCODING
 
 
-def read_json_data(json_input):
+def read_json_data(json_input: str | dict | list) -> dict | list:
     """
     Reads JSON data from a file path, a JSON string, or a Python data structure.
 
@@ -21,7 +21,7 @@ def read_json_data(json_input):
         return json.loads(json_input)
 
 
-def flatten_json(y, parent_key="", sep="."):
+def flatten_json(y: dict, parent_key: str = "", sep: str = ".") -> dict:
     """
     Recursively flattens a nested JSON object.
 

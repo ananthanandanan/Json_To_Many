@@ -62,6 +62,74 @@ class TestJsonToXML(unittest.TestCase):
         finally:
             os.unlink(path)
 
+    def test_custom_root_element(self):
+        converter = JsonToXML({"name": "Alice"}, root_element="person")
+        converter.converter()
+        result = converter.get_converted_data()
+        self.assertIn("<person>", result.data)
+        self.assertNotIn("<root>", result.data)
+
+    def test_default_root_element(self):
+        converter = JsonToXML({"x": "1"})
+        converter.converter()
+        result = converter.get_converted_data()
+        self.assertIn("<root>", result.data)
+
+    def test_pretty_print_adds_indentation(self):
+        converter = JsonToXML({"a": "1", "b": "2"}, pretty_print=True)
+        converter.converter()
+        result = converter.get_converted_data()
+        self.assertIn("\n", result.data)
+        self.assertIn("  ", result.data)
+
+    def test_pretty_print_false_no_indentation(self):
+        converter = JsonToXML({"a": "1"}, pretty_print=False)
+        converter.converter()
+        result = converter.get_converted_data()
+        self.assertNotIn("\n  ", result.data)
+
+    def test_item_element_wraps_list_items(self):
+        converter = JsonToXML([{"id": "1"}, {"id": "2"}], item_element="item")
+        converter.converter()
+        result = converter.get_converted_data()
+        self.assertEqual(result.data.count("<item>"), 2)
+        self.assertEqual(result.data.count("</item>"), 2)
+
+    def test_item_element_none_preserves_behavior(self):
+        data = [{"id": "1"}, {"id": "2"}]
+        r1 = JsonToXML(data)
+        r1.converter()
+        r2 = JsonToXML(data, item_element=None)
+        r2.converter()
+        self.assertEqual(r1.get_converted_data().data, r2.get_converted_data().data)
+
+    def test_pretty_print_save_to_file(self):
+        converter = JsonToXML({"greeting": "hello"}, pretty_print=True)
+        converter.converter()
+        with tempfile.NamedTemporaryFile(suffix=".xml", delete=False) as f:
+            path = f.name
+        try:
+            converter.save_to_file(path)
+            with open(path, encoding="utf-8") as f:
+                contents = f.read()
+            self.assertIn("\n", contents)
+            self.assertIn("greeting", contents)
+        finally:
+            os.unlink(path)
+
+    def test_all_xml_options_combined(self):
+        converter = JsonToXML(
+            [{"val": "a"}, {"val": "b"}],
+            root_element="data",
+            item_element="entry",
+            pretty_print=True,
+        )
+        converter.converter()
+        result = converter.get_converted_data()
+        self.assertIn("<data>", result.data)
+        self.assertEqual(result.data.count("<entry>"), 2)
+        self.assertIn("\n", result.data)
+
 
 if __name__ == "__main__":
     unittest.main()

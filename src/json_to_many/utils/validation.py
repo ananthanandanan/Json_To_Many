@@ -1,5 +1,5 @@
 # json_to_many/utils/validation.py
-def validate_json(data):
+def validate_json(data: object) -> bool:
     """
     Validates if the input data is valid JSON.
 

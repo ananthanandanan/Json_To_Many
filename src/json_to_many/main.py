@@ -1,12 +1,19 @@
+from typing import Any
 from .converters import JsonToMarkdown
 from .converters import JsonToXML
 from .converters import JsonToCSV
 from .utils import read_json_data
 from .exceptions import UnsupportedFormatError
 from .utils import SUPPORTED_FORMATS
+from .result import ConversionResult
 
 
-def convert(json_input, output_format, output_file=None, **options):
+def convert(
+    json_input: str | dict | list,
+    output_format: str,
+    output_file: str | None = None,
+    **options: Any,
+) -> ConversionResult:
     """
     Main entry point for converting JSON to various formats.
 
