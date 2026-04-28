@@ -6,39 +6,34 @@
 
 ## Overview
 
-In today's interconnected digital ecosystem, **JSON has become the lingua franca of data exchange**. From REST APIs to configuration files, from database exports to IoT sensor data, JSON is everywhere. However, while JSON excels at machine-to-machine communication, different tools, platforms, and use cases often require data in specific formats.
+**Json_To_Many** is a zero-dependency Python library for converting JSON data into multiple output formats — Markdown, XML, CSV, and more. It is built for developers who need format conversion as part of a codebase, script, or CI pipeline — not as a one-off manual task.
 
-**Json_To_Many** bridges this gap by providing seamless conversion from JSON to multiple output formats. Whether you're a developer documenting an API, a data analyst preparing reports, or a content creator transforming data for different platforms, this package eliminates the friction of manual format conversion.
+Every conversion returns a typed `ConversionResult` so callers never need to parse raw output strings. The package ships `py.typed` and full annotations, so mypy and pyright work without any extra configuration.
 
-### The Problem We Solve
+### What developers use it for
 
-- **Developers** need to transform API responses for documentation (Markdown)
-- **Data analysts** require CSV exports for spreadsheet analysis
-- **DevOps teams** need XML for legacy system integration
-- **Content creators** want structured data in readable formats
-- **Business users** need reports generated from JSON APIs
+- Generating Markdown documentation from API responses or config data
+- Producing XML output for legacy system integration
+- Exporting structured data as CSV for downstream tooling
+- Automating format conversion in CI pipelines
 
-**Json_To_Many** makes these transformations effortless, allowing you to focus on what matters most: your data and insights.
+### Design principles
 
-The project is managed using **uv** for dependency management and packaging, and **Ruff** is used for linting to ensure code quality.
-
-> **Note:** This is a humble side project built out of passion for making data format conversions easier and more accessible.
+- **Zero mandatory dependencies** — `pip install json_to_many` brings nothing else with it
+- **Typed by default** — full annotations, `py.typed` marker, works with strict mypy/pyright
+- **Structured return type** — `ConversionResult.data`, `.format`, `.stats` — no string parsing
+- **Composable** — plays cleanly with `jq`, shell pipes, and GitHub Actions
 
 ## Features
 
-### Current Supported Formats
+### Output Formats
 
-- **JSON to Markdown**
-- **JSON to XML**
-- **JSON to CSV**
+| Format   | Options |
+|----------|---------|
+| Markdown | `title`, `heading_offset`, `max_heading_level`, `bullet_lists`, `table_for_lists`, `frontmatter`, `code_block_keys` |
+| XML      | `root_element`, `item_element`, `pretty_print` |
+| CSV      | `delimiter`, `quotechar`, `include_header`, `columns` |
 
-### Upcoming Supported Formats
-
-- **JSON to TSV**
-- **JSON to SQL**
-- **JSON to YAML**
-- **JSON to HTML**
-- **JSON to PDF**
 
 ## Table of Contents
 
@@ -48,13 +43,14 @@ The project is managed using **uv** for dependency management and packaging, and
   - [Converting JSON to Markdown](#converting-json-to-markdown)
     - [Markdown Options](#markdown-options)
   - [Converting JSON to XML](#converting-json-to-xml)
+    - [XML Options](#xml-options)
   - [Converting JSON to CSV](#converting-json-to-csv)
+    - [CSV Options](#csv-options)
 - [Examples](#examples)
 - [Development](#development)
   - [Setting Up a Development Environment](#setting-up-a-development-environment)
   - [Coding Guidelines](#coding-guidelines)
 - [Contributing](#contributing)
-- [Roadmap](#roadmap)
 - [License](#license)
 - [Contact](#contact)
 
@@ -81,9 +77,10 @@ from json_to_many import convert
 json_string = '{"title": "Sample Document", "content": "This is a sample."}'
 convert(json_string, 'markdown', output_file='output.md')
 
-# Convert JSON file to XML and get the converted data
-xml_data = convert('data.json', 'xml', return_data=True)
-print(xml_data)
+# Convert JSON file to XML — always returns a ConversionResult
+result = convert('data.json', 'xml')
+print(result.data)   # the XML string
+print(result.stats)  # ConversionStats(rows=..., fields=...)
 ```
 
 ## Usage
@@ -106,9 +103,8 @@ from json_to_many import convert
 
 json_string = '{"title": "Sample Document", "content": "This is a sample."}'
 
-# Convert JSON string to Markdown and get the converted data
-markdown_data = convert(json_string, 'markdown', return_data=True)
-print(markdown_data)
+result = convert(json_string, 'markdown')
+print(result.data)
 ```
 
 **Sample Output:**
@@ -149,11 +145,11 @@ data = {
 }
 
 # Shift headings down one level and add a document title
-md = convert(data, "markdown", return_data=True,
-             title="Project Report",
-             heading_offset=1,
-             bullet_lists=True)
-print(md)
+result = convert(data, "markdown",
+                 title="Project Report",
+                 heading_offset=1,
+                 bullet_lists=True)
+print(result.data)
 ```
 
 ```markdown
@@ -187,7 +183,8 @@ data = {
     ]
 }
 
-md = convert(data, "markdown", return_data=True, table_for_lists=True)
+result = convert(data, "markdown", table_for_lists=True)
+md = result.data
 ```
 
 ```markdown
@@ -210,8 +207,9 @@ Supports `str`, `int`, `float`, `bool`, and `None` values. No external dependenc
 **Example:**
 
 ```python
-md = convert(data, "markdown", return_data=True,
-             frontmatter={"title": "API Docs", "date": "2025-02-21", "draft": False})
+result = convert(data, "markdown",
+                 frontmatter={"title": "API Docs", "date": "2025-02-21", "draft": False})
+md = result.data
 ```
 
 ```markdown
@@ -238,8 +236,8 @@ data = {
     "example_request": '{"filter": "active"}',
 }
 
-md = convert(data, "markdown", return_data=True,
-             code_block_keys=["example_request"])
+result = convert(data, "markdown", code_block_keys=["example_request"])
+md = result.data
 ```
 
 ```markdown
@@ -271,19 +269,49 @@ json_data = {
 
 # Convert JSON data to XML and save to 'note.xml'
 convert(json_data, 'xml', output_file='note.xml')
-```
 
-**Get Converted XML Data Without Saving:**
-
-```python
-xml_data = convert(json_data, 'xml', return_data=True)
-print(xml_data)
+# Get the converted data
+result = convert(json_data, 'xml')
+print(result.data)
 ```
 
 **Sample Output:**
 
 ```xml
 <root><note><to>Alice</to><from>Bob</from><message>Hello, Alice!</message></note></root>
+```
+
+### XML Options
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `root_element` | `str` | `"root"` | Name of the top-level XML element |
+| `item_element` | `str \| None` | `None` | Wraps each list item in a named element (e.g. `"item"`) |
+| `pretty_print` | `bool` | `False` | Indents the XML output for readability |
+
+**Example:**
+
+```python
+data = [{"id": "1", "name": "Alice"}, {"id": "2", "name": "Bob"}]
+
+result = convert(data, "xml",
+                 root_element="users",
+                 item_element="user",
+                 pretty_print=True)
+print(result.data)
+```
+
+```xml
+<users>
+  <user>
+    <id>1</id>
+    <name>Alice</name>
+  </user>
+  <user>
+    <id>2</id>
+    <name>Bob</name>
+  </user>
+</users>
 ```
 
 ### Converting JSON to CSV
@@ -305,8 +333,8 @@ convert(json_data, 'csv', output_file='data.csv')
 **Get Converted CSV Data Without Saving:**
 
 ```python
-csv_data = convert(json_data, 'csv', return_data=True)
-print(csv_data)
+result = convert(json_data, 'csv')
+print(result.data)
 ```
 
 **Sample Output:**
@@ -317,7 +345,37 @@ Alice,30,New York
 Bob,25,Los Angeles
 ```
 
-**Note:** The CSV converter automatically flattens nested JSON structures and handles complex data types appropriately.
+**Note:** The CSV converter automatically flattens nested JSON structures using dot-notation keys (e.g. `address.city`).
+
+### CSV Options
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `delimiter` | `str` | `","` | Field separator character |
+| `quotechar` | `str` | `'"'` | Character used to quote fields containing the delimiter |
+| `include_header` | `bool` | `True` | Whether to include the header row |
+| `columns` | `list[str] \| None` | `None` | Explicit column list; controls order and limits output to these fields |
+
+**Example:**
+
+```python
+data = [
+    {"name": "Alice", "role": "admin", "joined": "2024-01-01"},
+    {"name": "Bob",   "role": "user",  "joined": "2024-03-15"},
+]
+
+# Semicolon-separated, specific columns only
+result = convert(data, "csv",
+                 delimiter=";",
+                 columns=["name", "role"])
+print(result.data)
+```
+
+```csv
+name;role
+Alice;admin
+Bob;user
+```
 
 ## Examples
 
@@ -432,9 +490,6 @@ Contributions are welcome! Here's how you can help:
    - Run `uv run pytest` to ensure all tests pass.
    - Run `uv run ruff check .` to ensure code style compliance.
 
-_For detailed technical specifications, implementation timelines, and architecture diagrams, see our comprehensive [**ROADMAP.md**](ROADMAP.md)._
-
-_Want to contribute to this roadmap? Check out our [Contributing](#contributing) guidelines or open an issue to discuss new ideas!_
 
 ## License
 
