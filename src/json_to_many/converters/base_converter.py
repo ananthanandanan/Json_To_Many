@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
 from ..result import ConversionResult, ConversionStats
 
 
 class BaseConverter(ABC):
-    def __init__(self, data, **options):
+    def __init__(self, data: dict | list, **options: Any) -> None:
         self.data = data
         self.options = options
         self._stats = ConversionStats()

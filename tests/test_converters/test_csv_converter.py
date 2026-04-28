@@ -71,6 +71,74 @@ class TestJsonToCSV(unittest.TestCase):
         finally:
             os.unlink(path)
 
+    def test_custom_delimiter(self):
+        converter = JsonToCSV([{"a": "1", "b": "2"}], delimiter=";")
+        converter.converter()
+        result = converter.get_converted_data()
+        lines = result.data.strip().splitlines()
+        self.assertIn(";", lines[0])
+
+    def test_custom_quotechar(self):
+        converter = JsonToCSV([{"name": "Alice, Jr."}], quotechar="'")
+        converter.converter()
+        result = converter.get_converted_data()
+        self.assertIn("'", result.data)
+
+    def test_include_header_false(self):
+        converter = JsonToCSV([{"x": "1", "y": "2"}], include_header=False)
+        converter.converter()
+        result = converter.get_converted_data()
+        lines = result.data.strip().splitlines()
+        self.assertEqual(len(lines), 1)
+        self.assertNotIn("x", lines[0])
+
+    def test_include_header_true_default(self):
+        converter = JsonToCSV([{"x": "1"}])
+        converter.converter()
+        result = converter.get_converted_data()
+        lines = result.data.strip().splitlines()
+        self.assertEqual(len(lines), 2)
+        self.assertIn("x", lines[0])
+
+    def test_columns_explicit_ordering(self):
+        converter = JsonToCSV([{"b": "2", "a": "1", "c": "3"}], columns=["a", "b", "c"])
+        converter.converter()
+        result = converter.get_converted_data()
+        header = result.data.strip().splitlines()[0]
+        self.assertEqual(header.strip(), "a,b,c")
+
+    def test_columns_limits_output_columns(self):
+        converter = JsonToCSV([{"a": "1", "b": "2", "c": "3"}], columns=["a", "c"])
+        converter.converter()
+        result = converter.get_converted_data()
+        self.assertIn("a", result.data)
+        self.assertIn("c", result.data)
+        self.assertNotIn("b", result.data)
+        self.assertEqual(result.stats.fields, 2)
+
+    def test_columns_none_auto_detects(self):
+        converter = JsonToCSV([{"a": "1", "b": "2"}], columns=None)
+        converter.converter()
+        result = converter.get_converted_data()
+        self.assertIn("a", result.data)
+        self.assertIn("b", result.data)
+
+    def test_all_csv_options_combined(self):
+        data = [{"name": "Alice", "role": "admin"}, {"name": "Bob", "role": "user"}]
+        converter = JsonToCSV(
+            data,
+            delimiter="|",
+            quotechar="'",
+            include_header=False,
+            columns=["name"],
+        )
+        converter.converter()
+        result = converter.get_converted_data()
+        lines = result.data.strip().splitlines()
+        self.assertEqual(len(lines), 2)
+        self.assertIn("Alice", result.data)
+        self.assertNotIn("role", result.data)
+
 
 if __name__ == "__main__":
     unittest.main()

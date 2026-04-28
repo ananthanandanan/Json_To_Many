@@ -1,3 +1,4 @@
+from typing import Any
 from .base_converter import BaseConverter
 import xml.etree.ElementTree as ET
 from ..utils.constants import DEFAULT_ENCODING
@@ -5,38 +6,43 @@ from ..result import ConversionResult, ConversionStats
 
 
 class JsonToXML(BaseConverter):
-    def __init__(self, data, **options):
+    def __init__(self, data: dict | list, **options: Any) -> None:
         super().__init__(data, **options)
-        self.root = ET.Element("root")
+        root_element: str = self.options.get("root_element", "root")
+        self.root = ET.Element(root_element)
 
-    def converter(self):
+    def converter(self) -> None:
         self.add_elements(self.data, self.root)
+        if self.options.get("pretty_print", False):
+            ET.indent(self.root, space="  ")
         rows = len(self.data) if isinstance(self.data, list) else 1
         self._stats = ConversionStats(rows=rows)
 
-    def add_elements(self, data, parent):
-        """
-        Recursively add elements to the XML tree.
-
-        :param data: JSON data to be converted.
-        :param parent: Parent XML element.
-        """
-
+    def add_elements(
+        self,
+        data: dict | list | str | int | float | bool | None,
+        parent: ET.Element,
+    ) -> None:
         if isinstance(data, dict):
             for key, value in data.items():
                 sub_element = ET.SubElement(parent, key)
                 self.add_elements(value, sub_element)
         elif isinstance(data, list):
+            item_tag: str | None = self.options.get("item_element", None)
             for item in data:
-                self.add_elements(item, parent)
+                if item_tag is not None:
+                    wrapper = ET.SubElement(parent, item_tag)
+                    self.add_elements(item, wrapper)
+                else:
+                    self.add_elements(item, parent)
         else:
             parent.text = str(data)
 
-    def save_to_file(self, file_name):
+    def save_to_file(self, file_name: str) -> None:
         tree = ET.ElementTree(self.root)
         tree.write(file_name, encoding=DEFAULT_ENCODING, xml_declaration=True)
 
-    def get_converted_data(self):
+    def get_converted_data(self) -> ConversionResult:
         xml_str = ET.tostring(self.root, encoding=DEFAULT_ENCODING).decode(
             DEFAULT_ENCODING
         )

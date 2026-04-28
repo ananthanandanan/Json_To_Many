@@ -1,15 +1,16 @@
+from typing import Any
 from .base_converter import BaseConverter
 from ..utils.constants import DEFAULT_ENCODING
 from ..result import ConversionResult, ConversionStats
 
 
 class JsonToMarkdown(BaseConverter):
-    def __init__(self, data, **options):
+    def __init__(self, data: dict | list, **options: Any) -> None:
         super().__init__(data, **options)
-        self.markdown_lines = []
-        self.converted_data = None
+        self.markdown_lines: list[str] = []
+        self.converted_data: str | None = None
 
-    def converter(self):
+    def converter(self) -> None:
         frontmatter = self.options.get("frontmatter")
         if frontmatter is not None:
             self._emit_frontmatter(frontmatter)
@@ -128,11 +129,12 @@ class JsonToMarkdown(BaseConverter):
     def add_text(self, text):
         self.markdown_lines.append(f"{text}\n\n")
 
-    def save_to_file(self, file_name):
+    def save_to_file(self, file_name: str) -> None:
         with open(file_name, "w", encoding=DEFAULT_ENCODING) as file:
             file.writelines(self.markdown_lines)
 
-    def get_converted_data(self):
+    def get_converted_data(self) -> ConversionResult:
+        assert self.converted_data is not None
         return ConversionResult(
             data=self.converted_data, format="markdown", stats=self._stats
         )
