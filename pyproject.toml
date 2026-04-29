@@ -30,6 +30,14 @@ Repository = "https://github.com/ananthanandanan/Json_To_Many"
 Documentation = "https://github.com/ananthanandanan/Json_To_Many/tree/main?tab=readme-ov-file#quick-start"
 "Bug Reports" = "https://github.com/ananthanandanan/Json_To_Many/issues"
 
+[project.optional-dependencies]
+cli = [
+    "click>=8.3.3",
+]
+
+[project.scripts]
+json2many = "json_to_many.cli.main:cli"
+
 [dependency-groups]
 dev = ["pytest>=8.3.3,<9", "ruff>=0.4.9,<0.5", "twine>=6.1.0"]
 
