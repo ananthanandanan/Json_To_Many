@@ -78,7 +78,8 @@ class JsonToSQL(BaseConverter):
 
     def save_to_file(self, file_name: str) -> None:
         assert self.converted_data is not None
-        with open(file_name, "w", encoding=DEFAULT_ENCODING) as f:
+        encoding = self.options.get("encoding", DEFAULT_ENCODING)
+        with open(file_name, "w", encoding=encoding) as f:
             f.write(self.converted_data)
 
     def get_converted_data(self) -> ConversionResult:

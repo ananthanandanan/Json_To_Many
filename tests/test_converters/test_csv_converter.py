@@ -123,6 +123,20 @@ class TestJsonToCSV(unittest.TestCase):
         self.assertIn("a", result.data)
         self.assertIn("b", result.data)
 
+    def test_save_to_file_custom_encoding(self):
+        data = [{"name": "Ångström", "value": "42"}]
+        converter = JsonToCSV(data, encoding="utf-8")
+        converter.converter()
+        with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as f:
+            path = f.name
+        try:
+            converter.save_to_file(path)
+            with open(path, encoding="utf-8") as f:
+                contents = f.read()
+            self.assertIn("Ångström", contents)
+        finally:
+            os.unlink(path)
+
     def test_all_csv_options_combined(self):
         data = [{"name": "Alice", "role": "admin"}, {"name": "Bob", "role": "user"}]
         converter = JsonToCSV(
