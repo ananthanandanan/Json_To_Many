@@ -263,6 +263,9 @@ wheels = [
 name = "json-to-many"
 version = "0.3.0"
 source = { editable = "." }
+dependencies = [
+    { name = "tomli", marker = "python_full_version < '3.11'" },
+]
 
 [package.optional-dependencies]
 cli = [
@@ -277,7 +280,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "click", marker = "extra == 'cli'", specifier = ">=8.3.3" }]
+requires-dist = [
+    { name = "click", marker = "extra == 'cli'", specifier = ">=8.3.3" },
+    { name = "tomli", marker = "python_full_version < '3.11'", specifier = ">=2.0" },
+]
 provides-extras = ["cli"]
 
 [package.metadata.requires-dev]
