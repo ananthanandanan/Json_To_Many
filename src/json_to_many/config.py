@@ -54,5 +54,7 @@ def merge_options(
     Priority (highest wins): explicit_options > converters.<format> > defaults.
     """
     defaults: dict[str, Any] = config.get("defaults", {})
-    format_config: dict[str, Any] = config.get("converters", {}).get(output_format.lower(), {})
+    format_config: dict[str, Any] = config.get("converters", {}).get(
+        output_format.lower(), {}
+    )
     return {**defaults, **format_config, **explicit_options}

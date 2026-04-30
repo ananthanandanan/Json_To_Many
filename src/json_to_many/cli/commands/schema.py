@@ -14,10 +14,7 @@ def _render_table(result: SchemaResult, top: int | None) -> str:
     fields = result.fields[:top] if top else result.fields
 
     headers = ("Field", "Type", "Coverage", "Sample")
-    rows = [
-        (f.name, f.type, f"{f.coverage}%", f.sample)
-        for f in fields
-    ]
+    rows = [(f.name, f.type, f"{f.coverage}%", f.sample) for f in fields]
 
     col_widths = [len(h) for h in headers]
     for row in rows:
@@ -42,10 +39,15 @@ def _render_table(result: SchemaResult, top: int | None) -> str:
 
 @click.command("schema")
 @click.argument("source", default="-")
-@click.option("--json", "as_json", is_flag=True,
-              help="Emit SchemaResult as JSON (useful for scripting with jq).")
-@click.option("--top", type=int, default=None,
-              help="Show only the top N fields by coverage.")
+@click.option(
+    "--json",
+    "as_json",
+    is_flag=True,
+    help="Emit SchemaResult as JSON (useful for scripting with jq).",
+)
+@click.option(
+    "--top", type=int, default=None, help="Show only the top N fields by coverage."
+)
 def schema_cmd(source: str, as_json: bool, top: int | None) -> None:
     """Inspect the shape of a JSON file or stdin.
 

@@ -1,14 +1,15 @@
-import pytest
 from json_to_many.utils.schema import analyze_schema, FieldInfo, SchemaResult
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
+
 
 def field_by_name(result: SchemaResult, name: str) -> FieldInfo:
     return next(f for f in result.fields if f.name == name)
 
 
 # ── basic structure ───────────────────────────────────────────────────────────
+
 
 def test_flat_list_of_dicts():
     data = [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}]
@@ -43,6 +44,7 @@ def test_empty_list():
 
 # ── nested keys ───────────────────────────────────────────────────────────────
 
+
 def test_nested_dict_dot_notation():
     data = [{"id": 1, "address": {"city": "London", "zip": "SW1A"}}]
     result = analyze_schema(data)
@@ -54,6 +56,7 @@ def test_nested_dict_dot_notation():
 
 
 # ── coverage ─────────────────────────────────────────────────────────────────
+
 
 def test_sparse_field_coverage():
     data = [
@@ -80,6 +83,7 @@ def test_fields_sorted_by_coverage_desc():
 
 
 # ── type inference ────────────────────────────────────────────────────────────
+
 
 def test_bool_distinguished_from_int():
     data = [{"flag": True}, {"flag": False}]
@@ -117,6 +121,7 @@ def test_mixed_type_field():
 
 # ── null does not pollute type resolution ─────────────────────────────────────
 
+
 def test_null_does_not_make_field_mixed():
     # Some records have None, some have int — should resolve to "int", not "mixed"
     data = [{"score": 10}, {"score": None}, {"score": 7}]
@@ -133,6 +138,7 @@ def test_null_coverage_reflects_presence_not_value():
 
 # ── samples ───────────────────────────────────────────────────────────────────
 
+
 def test_sample_is_first_non_null_value():
     data = [{"name": None}, {"name": "Alice"}, {"name": "Bob"}]
     result = analyze_schema(data)
@@ -147,8 +153,10 @@ def test_sample_null_when_all_values_are_null():
 
 # ── public API surface ────────────────────────────────────────────────────────
 
+
 def test_importable_from_top_level():
     from json_to_many import analyze_schema as fn, SchemaResult as SR, FieldInfo as FI
+
     assert callable(fn)
     assert SR is SchemaResult
     assert FI is FieldInfo

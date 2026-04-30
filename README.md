@@ -83,10 +83,15 @@ full priority order and all supported keys.
 ## Development
 
 ```bash
-uv sync --extra cli   # install with CLI support
-uv run pytest         # run tests
-uv run ruff check .   # lint
+uv sync --extra cli --dev       # install runtime, CLI, and dev tooling
+uv run pre-commit install       # install Git hooks
+uv run pre-commit run --all-files
+uv run pytest
 ```
+
+The pre-commit setup runs Ruff lint fixes, Ruff formatting, YAML validation, trailing whitespace
+cleanup, and final newline checks. Ruff is pinned through both `pyproject.toml` and
+`.pre-commit-config.yaml`; keep those versions aligned when upgrading the formatter.
 
 > **Maintainers:** See [RELEASING.md](RELEASING.md) for the release process.
 

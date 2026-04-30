@@ -28,4 +28,6 @@ class JsonToJSONL(BaseConverter):
 
     def get_converted_data(self) -> ConversionResult:
         assert self.converted_data is not None
-        return ConversionResult(data=self.converted_data, format="jsonl", stats=self._stats)
+        return ConversionResult(
+            data=self.converted_data, format="jsonl", stats=self._stats
+        )

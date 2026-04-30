@@ -1,9 +1,9 @@
 import json
-import pytest
 from json_to_many import convert
 
 
 # ── basic output ──────────────────────────────────────────────────────────────
+
 
 def test_list_produces_one_line_per_record():
     data = [{"id": 1}, {"id": 2}, {"id": 3}]
@@ -36,6 +36,7 @@ def test_nested_dict_is_preserved():
 
 # ── options ───────────────────────────────────────────────────────────────────
 
+
 def test_ensure_ascii_false_preserves_unicode():
     data = [{"name": "Ångström"}]
     result = convert(data, "jsonl", ensure_ascii=False)
@@ -50,6 +51,7 @@ def test_ensure_ascii_true_escapes_unicode():
 
 
 # ── stats ─────────────────────────────────────────────────────────────────────
+
 
 def test_stats_rows():
     data = [{"id": i} for i in range(5)]

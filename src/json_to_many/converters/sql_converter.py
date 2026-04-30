@@ -53,7 +53,9 @@ class JsonToSQL(BaseConverter):
 
         if include_create:
             schema = analyze_schema(self.data)
-            type_map = {f.name: _SCHEMA_TO_SQL.get(f.type, "TEXT") for f in schema.fields}
+            type_map = {
+                f.name: _SCHEMA_TO_SQL.get(f.type, "TEXT") for f in schema.fields
+            }
             col_defs = ",\n  ".join(
                 f"{col} {type_map.get(col, 'TEXT')}" for col in columns
             )
@@ -81,4 +83,6 @@ class JsonToSQL(BaseConverter):
 
     def get_converted_data(self) -> ConversionResult:
         assert self.converted_data is not None
-        return ConversionResult(data=self.converted_data, format="sql", stats=self._stats)
+        return ConversionResult(
+            data=self.converted_data, format="sql", stats=self._stats
+        )

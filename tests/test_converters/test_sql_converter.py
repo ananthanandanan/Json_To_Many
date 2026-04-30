@@ -1,4 +1,3 @@
-import pytest
 from json_to_many import convert
 
 
@@ -9,6 +8,7 @@ USERS = [
 
 
 # ── basic INSERT structure ────────────────────────────────────────────────────
+
 
 def test_produces_insert_statement():
     result = convert(USERS, "sql", table="users")
@@ -39,6 +39,7 @@ def test_single_dict_input():
 
 # ── value escaping ────────────────────────────────────────────────────────────
 
+
 def test_single_quotes_in_strings_are_escaped():
     data = [{"name": "O'Brien"}]
     result = convert(data, "sql", table="t")
@@ -65,6 +66,7 @@ def test_float_value_preserved():
 
 # ── batch_size ────────────────────────────────────────────────────────────────
 
+
 def test_batch_size_splits_into_multiple_inserts():
     data = [{"id": i} for i in range(5)]
     result = convert(data, "sql", table="t", batch_size=2)
@@ -78,6 +80,7 @@ def test_single_batch_when_records_fit():
 
 
 # ── include_create ────────────────────────────────────────────────────────────
+
 
 def test_include_create_adds_create_table():
     result = convert(USERS, "sql", table="users", include_create=True)
@@ -107,6 +110,7 @@ def test_create_table_infers_text_type():
 
 
 # ── stats ─────────────────────────────────────────────────────────────────────
+
 
 def test_stats_rows_and_fields():
     result = convert(USERS, "sql", table="users")

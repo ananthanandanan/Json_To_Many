@@ -1,4 +1,3 @@
-import pytest
 from json_to_many import convert
 
 
@@ -11,6 +10,7 @@ NESTED = {"user": {"name": "Alice", "city": "London"}}
 
 
 # ── list of dicts → table ─────────────────────────────────────────────────────
+
 
 def test_list_of_dicts_renders_table():
     result = convert(FLAT_RECORDS, "html")
@@ -40,9 +40,10 @@ def test_sparse_field_renders_empty_cell():
 
 # ── table_style ───────────────────────────────────────────────────────────────
 
+
 def test_table_style_none_has_no_class():
     result = convert(FLAT_RECORDS, "html", table_style="none")
-    assert 'class=' not in result.data
+    assert "class=" not in result.data
 
 
 def test_table_style_github_adds_class():
@@ -56,6 +57,7 @@ def test_table_style_bootstrap_adds_class():
 
 
 # ── dict → definition list ────────────────────────────────────────────────────
+
 
 def test_single_dict_renders_dl():
     result = convert(SINGLE_DICT, "html")
@@ -72,6 +74,7 @@ def test_nested_dict_renders_nested_dl():
 
 
 # ── wrap_in_page ──────────────────────────────────────────────────────────────
+
 
 def test_wrap_in_page_adds_html_scaffold():
     result = convert(FLAT_RECORDS, "html", wrap_in_page=True)
@@ -93,6 +96,7 @@ def test_bootstrap_cdn_only_in_wrapped_page():
 
 # ── html escaping ─────────────────────────────────────────────────────────────
 
+
 def test_html_special_chars_are_escaped():
     data = [{"name": "<script>alert('xss')</script>"}]
     result = convert(data, "html")
@@ -101,6 +105,7 @@ def test_html_special_chars_are_escaped():
 
 
 # ── stats ─────────────────────────────────────────────────────────────────────
+
 
 def test_stats_rows_and_fields():
     result = convert(FLAT_RECORDS, "html")

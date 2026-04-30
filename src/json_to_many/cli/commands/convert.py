@@ -39,29 +39,51 @@ def _output_path(output_dir: str, source: str, fmt: str) -> str:
 
 @click.command("convert")
 @click.argument("source", default="-")
-@click.option("--to", "-t", "formats", multiple=True, required=True,
-              help="Output format (repeatable for multiple outputs).")
-@click.option("--output", "-o", "output_file", default=None,
-              help="Output file path. Only valid with a single --to.")
-@click.option("--output-dir", "-d", default=None,
-              help="Output directory for multiple --to formats.")
-@click.option("--dry-run", is_flag=True,
-              help="Print output without writing any files.")
-@click.option("--json", "as_json", is_flag=True,
-              help="Emit ConversionResult as JSON (useful for scripting).")
-@click.option("--quiet", is_flag=True,
-              help="Suppress stats output.")
+@click.option(
+    "--to",
+    "-t",
+    "formats",
+    multiple=True,
+    required=True,
+    help="Output format (repeatable for multiple outputs).",
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_file",
+    default=None,
+    help="Output file path. Only valid with a single --to.",
+)
+@click.option(
+    "--output-dir",
+    "-d",
+    default=None,
+    help="Output directory for multiple --to formats.",
+)
+@click.option("--dry-run", is_flag=True, help="Print output without writing any files.")
+@click.option(
+    "--json",
+    "as_json",
+    is_flag=True,
+    help="Emit ConversionResult as JSON (useful for scripting).",
+)
+@click.option("--quiet", is_flag=True, help="Suppress stats output.")
 # CSV options
 @click.option("--delimiter", default=None, help="CSV field delimiter (default: ',').")
 # XML options
 @click.option("--root-element", default=None, help="XML root element name.")
 @click.option("--item-element", default=None, help="XML item element name.")
-@click.option("--pretty-print", is_flag=True, default=False,
-              help="Pretty-print XML output.")
+@click.option(
+    "--pretty-print", is_flag=True, default=False, help="Pretty-print XML output."
+)
 # Markdown options
 @click.option("--title", default=None, help="Markdown document title.")
-@click.option("--heading-offset", type=int, default=None,
-              help="Heading level offset for Markdown output.")
+@click.option(
+    "--heading-offset",
+    type=int,
+    default=None,
+    help="Heading level offset for Markdown output.",
+)
 def convert_cmd(
     source: str,
     formats: tuple[str, ...],

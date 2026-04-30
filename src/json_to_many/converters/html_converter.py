@@ -72,7 +72,11 @@ class JsonToHTML(BaseConverter):
         wrap: bool = self.options.get("wrap_in_page", False)
         title: str = self.options.get("title", "")
 
-        if isinstance(self.data, list) and self.data and all(isinstance(r, dict) for r in self.data):
+        if (
+            isinstance(self.data, list)
+            and self.data
+            and all(isinstance(r, dict) for r in self.data)
+        ):
             body = _render_table(self.data, style=style)
             rows = len(self.data)
             fields = len(dict.fromkeys(k for r in self.data for k in r))
@@ -100,4 +104,6 @@ class JsonToHTML(BaseConverter):
 
     def get_converted_data(self) -> ConversionResult:
         assert self.converted_data is not None
-        return ConversionResult(data=self.converted_data, format="html", stats=self._stats)
+        return ConversionResult(
+            data=self.converted_data, format="html", stats=self._stats
+        )
