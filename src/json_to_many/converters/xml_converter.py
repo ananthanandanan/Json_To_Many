@@ -39,8 +39,9 @@ class JsonToXML(BaseConverter):
             parent.text = str(data)
 
     def save_to_file(self, file_name: str) -> None:
+        encoding = self.options.get("encoding", DEFAULT_ENCODING)
         tree = ET.ElementTree(self.root)
-        tree.write(file_name, encoding=DEFAULT_ENCODING, xml_declaration=True)
+        tree.write(file_name, encoding=encoding, xml_declaration=True)
 
     def get_converted_data(self) -> ConversionResult:
         xml_str = ET.tostring(self.root, encoding=DEFAULT_ENCODING).decode(
