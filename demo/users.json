@@ -1,0 +1,7 @@
+[
+  {"id": 1, "name": "Alice Nguyen", "email": "alice@example.com", "score": 8.4, "city": "London"},
+  {"id": 2, "name": "Bob Smith", "email": "bob@example.com", "score": 7.1, "city": "Berlin"},
+  {"id": 3, "name": "Carlos Ruiz", "email": "carlos@example.com", "score": 9.2, "city": "Madrid"},
+  {"id": 4, "name": "Dana Lee", "score": 6.8, "city": "Seoul"},
+  {"id": 5, "name": "Eva Müller", "email": "eva@example.com", "score": 8.9}
+]

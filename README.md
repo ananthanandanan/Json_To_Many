@@ -2,13 +2,14 @@
 
 [![PyPI Version](https://img.shields.io/pypi/v/json_to_many.svg)](https://pypi.org/project/json_to_many/)
 [![License](https://img.shields.io/pypi/l/json_to_many.svg)](https://github.com/ananthanandanan/Json_To_Many/blob/main/LICENSE)
-[![Build Status](https://github.com/ananthanandanan/Json_To_Many/actions/workflows/ci.yml/badge.svg)](https://github.com/ananthanandanan/Json_To_Many/actions)
 
 A zero-dependency Python library and CLI for converting JSON into multiple output formats.
 Every conversion returns a typed `ConversionResult` — no raw string parsing, full mypy/pyright
 support out of the box.
 
 → **[User Guide](docs/GUIDE.md)** — scenario-driven walkthrough of every feature
+
+![demo](demo/demo.gif)
 
 ---
 
@@ -30,8 +31,11 @@ pip install 'json_to_many[cli]'
 from json_to_many import convert
 
 result = convert("users.json", "csv", delimiter=";")
-print(result.data)          # the CSV string
-print(result.stats.rows)    # row count
+print(result.data)
+# id,name,email,score,city
+# 1,Alice Nguyen,alice@example.com,8.4,London
+# 2,Bob Smith,bob@example.com,7.1,Berlin
+print(result.stats.rows)    # 5
 ```
 
 **CLI:**
@@ -51,14 +55,14 @@ json2many convert api_export.json --to csv --to html --output-dir ./dist/
 
 ## Formats
 
-| Format | Options |
-|--------|---------|
-| `markdown` | `title`, `heading_offset`, `max_heading_level`, `bullet_lists`, `table_for_lists`, `frontmatter`, `code_block_keys` |
-| `xml` | `root_element`, `item_element`, `pretty_print` |
-| `csv` | `delimiter`, `quotechar`, `include_header`, `columns` |
-| `html` | `title`, `table_style`, `wrap_in_page` |
-| `jsonl` | `ensure_ascii` |
-| `sql` | `table`, `include_create`, `batch_size` |
+| Format | When to use | Options |
+|--------|-------------|---------|
+| `markdown` | Docs, wikis, changelogs | `title`, `heading_offset`, `max_heading_level`, `bullet_lists`, `table_for_lists`, `frontmatter`, `code_block_keys` |
+| `xml` | Legacy system integration, data exchange | `root_element`, `item_element`, `pretty_print` |
+| `csv` | Spreadsheets, analyst handoff | `delimiter`, `quotechar`, `include_header`, `columns` |
+| `html` | Stakeholder reports, CI build artifacts | `title`, `table_style`, `wrap_in_page` |
+| `jsonl` | Log pipelines, ML fine-tuning, streaming | `ensure_ascii` |
+| `sql` | Database seeding, fixture data for tests | `table`, `include_create`, `batch_size` |
 
 ---
 
