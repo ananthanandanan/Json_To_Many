@@ -1,3 +1,8 @@
+## [0.4.0] - 2026-05-02
+
+### 🚀 Features
+
+- CLI, schema command, HTML/JSONL/SQL converters, project config
 ## [0.3.0] - 2026-04-28
 
 ### 🚀 Features
@@ -13,6 +18,7 @@
 ### ⚙️ Miscellaneous Tasks
 
 - Add CLAUDE.md
+- Release v0.3.0
 ## [0.2.0] - 2026-02-22
 
 ### 🚀 Features
