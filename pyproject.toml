@@ -43,6 +43,7 @@ json2many = "json_to_many.cli.main:cli"
 [dependency-groups]
 dev = [
     "pre-commit>=4.6.0",
+    "pydantic>=2.0",
     "pytest>=8.3.3,<9",
     "ruff>=0.5.3",
     "twine>=6.1.0",
