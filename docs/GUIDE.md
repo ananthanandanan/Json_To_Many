@@ -106,6 +106,32 @@ print(result.data)           # the CSV string
 print(result.stats.rows)     # 1247
 ```
 
+The same controls are available on the CLI. `--columns` takes a comma-separated
+list, matching how you'd type it at the prompt. Nested keys use dot notation
+because CSV flattens automatically:
+
+```bash
+# Select and reorder fields
+json2many convert api_export.json --to csv --columns id,name,email --output users.csv
+
+# Address a nested field via dot notation
+json2many convert api_export.json --to csv --columns id,address.city --output cities.csv
+
+# Drop the header row when piping into a tool that doesn't want it
+json2many convert api_export.json --to csv --no-header --output users.csv
+```
+
+**Preparing CSV for a Postgres `\COPY`** — typed columns choke on empty cells.
+Use `--null-value` to emit a distinct sentinel and tell `psql` what it means:
+
+```bash
+json2many convert users.json --to csv --null-value '\N' --output users.csv
+psql -c "\COPY users FROM 'users.csv' CSV HEADER NULL '\N'"
+```
+
+`--null-value` substitutes for both `null` values and missing keys; literal
+empty-string values (`""`) are preserved as-is.
+
 `delimiter='\t'` gives you TSV for free — no separate converter needed.
 
 ---
@@ -173,6 +199,21 @@ result = convert(data, "markdown",
     code_block_keys=["example_request", "sql_query"],
 )
 ```
+
+**Frontmatter from the CLI** — `--frontmatter key=val` is repeatable, useful in
+CI where you want to stamp the generated doc with a date or git SHA:
+
+```bash
+json2many convert api.json --to markdown \
+  --title "API reference" \
+  --frontmatter draft=false \
+  --frontmatter generated_at=2026-05-14 \
+  --output docs/api.md
+```
+
+The first `=` splits the token, so values may contain `=`. Values are always
+strings; if you need typed YAML values (numbers, booleans, lists), use the
+Python API's `frontmatter=` argument instead.
 
 ---
 
@@ -328,6 +369,34 @@ INSERT INTO users (id, name, email, score, active, deleted_at) VALUES
 
 `batch_size` splits large datasets into multiple INSERT statements — important for databases
 with statement size limits. Default is 500 rows per batch.
+
+**From the CLI** — every SQL knob worth tweaking per-invocation has a flag:
+
+```bash
+# Name the target table and emit a CREATE alongside the seed
+json2many convert users.json --to sql \
+  --table users \
+  --include-create \
+  --output seed.sql
+
+# Narrow both INSERT and CREATE to a subset of fields
+json2many convert users.json --to sql \
+  --table users \
+  --columns id,name,email \
+  --include-create \
+  --output seed.sql
+
+# Substitute a token for NULL — useful when the consuming system distinguishes
+# 'redacted' from 'unknown' from 'truly null'
+json2many convert pii.json --to sql \
+  --table users \
+  --null-value redacted \
+  --output seed.sql
+```
+
+`--null-value` always emits a quoted string literal in SQL, so passing
+`--null-value NULL` produces `'NULL'` (the string), not the bare `NULL`
+keyword. Omit the flag if you want the keyword.
 
 ---
 

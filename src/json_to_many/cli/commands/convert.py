@@ -10,6 +10,7 @@ import click
 
 from ...main import convert
 from ...utils.json_utils import read_json_data
+from .._helpers import parse_kv, split_csv
 
 _FORMAT_EXTENSIONS: dict[str, str] = {
     "markdown": "md",
@@ -70,6 +71,32 @@ def _output_path(output_dir: str, source: str, fmt: str) -> str:
 @click.option("--quiet", is_flag=True, help="Suppress stats output.")
 # CSV options
 @click.option("--delimiter", default=None, help="CSV field delimiter (default: ',').")
+@click.option(
+    "--columns",
+    default=None,
+    callback=split_csv,
+    help="Comma-separated list of fields to emit (e.g. id,name,email). "
+    "Also applies to SQL. Nested keys use dot notation.",
+)
+@click.option(
+    "--header/--no-header",
+    "include_header",
+    default=None,
+    help="Emit a CSV header row. Default: --header.",
+)
+@click.option(
+    "--null-value",
+    default=None,
+    help="Token to emit for null or missing values (CSV cell or SQL string "
+    "literal). Note: passing 'NULL' produces the quoted literal \"'NULL'\" in "
+    "SQL, not the bare NULL keyword.",
+)
+@click.option(
+    "--flatten-sep",
+    default=None,
+    help="Separator for flattened nested keys (CSV/SQL). Default: '.'. "
+    "Useful when dots clash with downstream tools (e.g. '_' for SQL columns).",
+)
 # XML options
 @click.option("--root-element", default=None, help="XML root element name.")
 @click.option("--item-element", default=None, help="XML item element name.")
@@ -84,6 +111,24 @@ def _output_path(output_dir: str, source: str, fmt: str) -> str:
     default=None,
     help="Heading level offset for Markdown output.",
 )
+@click.option(
+    "--frontmatter",
+    "frontmatter",
+    multiple=True,
+    callback=parse_kv,
+    help="YAML frontmatter as key=val (repeatable, string values only).",
+)
+# SQL options
+@click.option(
+    "--table", default=None, help="Table name for SQL INSERT / CREATE statements."
+)
+@click.option(
+    "--include-create",
+    "include_create",
+    is_flag=True,
+    default=None,
+    help="Emit a CREATE TABLE statement before INSERTs (SQL).",
+)
 def convert_cmd(
     source: str,
     formats: tuple[str, ...],
@@ -93,11 +138,18 @@ def convert_cmd(
     as_json: bool,
     quiet: bool,
     delimiter: str | None,
+    columns: list[str] | None,
+    include_header: bool | None,
+    null_value: str | None,
+    flatten_sep: str | None,
     root_element: str | None,
     item_element: str | None,
     pretty_print: bool,
     title: str | None,
     heading_offset: int | None,
+    frontmatter: dict[str, str] | None,
+    table: str | None,
+    include_create: bool | None,
 ) -> None:
     """Convert a JSON file (or stdin) to one or more output formats.
 
@@ -109,6 +161,8 @@ def convert_cmd(
       cat data.json | json2many convert --to csv
       json2many convert data.json --to markdown --to csv --output-dir ./dist/
       json2many convert data.json --to xml --dry-run
+      json2many convert data.json --to csv --columns id,name,email
+      json2many convert data.json --to sql --table users --include-create
     """
     if output_file and len(formats) > 1:
         raise click.UsageError("--output can only be used with a single --to format.")
@@ -122,11 +176,18 @@ def convert_cmd(
 
     converter_opts = _build_options(
         delimiter=delimiter,
+        columns=columns,
+        include_header=include_header,
+        null_value=null_value,
+        flatten_sep=flatten_sep,
         root_element=root_element,
         item_element=item_element,
         pretty_print=pretty_print if pretty_print else None,
         title=title,
         heading_offset=heading_offset,
+        frontmatter=frontmatter,
+        table=table,
+        include_create=include_create,
     )
 
     results = {}

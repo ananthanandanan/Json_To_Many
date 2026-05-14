@@ -22,7 +22,8 @@ class JsonToCSV(BaseConverter):
                 "Invalid JSON data: Expected a dictionary or a list of dictionaries."
             )
 
-        self.csv_data = [flatten_json(item) for item in self.data]
+        flatten_sep: str = self.options.get("flatten_sep", ".")
+        self.csv_data = [flatten_json(item, sep=flatten_sep) for item in self.data]
 
         columns: list[str] | None = self.options.get("columns", None)
         if columns is not None:
@@ -46,7 +47,15 @@ class JsonToCSV(BaseConverter):
         quotechar: str = self.options.get("quotechar", '"')
         include_header: bool = self.options.get("include_header", True)
         columns: list[str] | None = self.options.get("columns", None)
+        null_value: str | None = self.options.get("null_value")
         extrasaction = "ignore" if columns is not None else "raise"
+
+        empty = null_value if null_value is not None else ""
+
+        def cell(row: dict, key: str):
+            if key not in row or row[key] is None:
+                return empty
+            return row[key]
 
         output = io.StringIO()
         writer = csv.DictWriter(
@@ -59,7 +68,7 @@ class JsonToCSV(BaseConverter):
         if include_header:
             writer.writeheader()
         for item in self.csv_data:
-            writer.writerow({key: item.get(key, "") for key in self.fieldnames})
+            writer.writerow({key: cell(item, key) for key in self.fieldnames})
         return output.getvalue()
 
     def save_to_file(self, file_name: str) -> None:

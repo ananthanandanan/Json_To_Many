@@ -153,6 +153,55 @@ class TestJsonToCSV(unittest.TestCase):
         self.assertIn("Alice", result.data)
         self.assertNotIn("role", result.data)
 
+    def test_null_value_replaces_missing_key(self):
+        data = [{"a": "1", "b": "2"}, {"a": "3"}]
+        converter = JsonToCSV(data, null_value="\\N", columns=["a", "b"])
+        converter.converter()
+        result = converter.get_converted_data()
+        lines = result.data.strip().splitlines()
+        self.assertEqual(lines[2], "3,\\N")
+
+    def test_null_value_replaces_explicit_none(self):
+        data = [{"a": "1", "b": None}]
+        converter = JsonToCSV(data, null_value="NA", columns=["a", "b"])
+        converter.converter()
+        result = converter.get_converted_data()
+        lines = result.data.strip().splitlines()
+        self.assertEqual(lines[1], "1,NA")
+
+    def test_null_value_preserves_literal_empty_string(self):
+        data = [{"a": "1", "b": ""}]
+        converter = JsonToCSV(data, null_value="\\N", columns=["a", "b"])
+        converter.converter()
+        result = converter.get_converted_data()
+        lines = result.data.strip().splitlines()
+        # Empty string is a real value — must not be converted.
+        self.assertEqual(lines[1], "1,")
+        self.assertNotIn("\\N", result.data)
+
+    def test_null_value_unset_keeps_empty_cell(self):
+        data = [{"a": "1", "b": "2"}, {"a": "3"}]
+        converter = JsonToCSV(data, columns=["a", "b"])
+        converter.converter()
+        result = converter.get_converted_data()
+        lines = result.data.strip().splitlines()
+        self.assertEqual(lines[2], "3,")
+
+    def test_flatten_sep_default_is_dot(self):
+        data = [{"user": {"name": "Alice"}}]
+        converter = JsonToCSV(data)
+        converter.converter()
+        result = converter.get_converted_data()
+        self.assertIn("user.name", result.data)
+
+    def test_flatten_sep_custom_underscore(self):
+        data = [{"user": {"name": "Alice"}}]
+        converter = JsonToCSV(data, flatten_sep="_")
+        converter.converter()
+        result = converter.get_converted_data()
+        self.assertIn("user_name", result.data)
+        self.assertNotIn("user.name", result.data)
+
 
 if __name__ == "__main__":
     unittest.main()
