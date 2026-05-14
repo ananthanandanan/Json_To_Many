@@ -38,6 +38,29 @@ print(result.data)
 print(result.stats.rows)    # 5
 ```
 
+`convert()` also accepts Pydantic models, dataclasses, and any object exposing
+`to_dict()` — single instances or lists, including nested fields:
+
+```python
+from dataclasses import dataclass
+from pydantic import BaseModel
+from json_to_many import convert
+
+class User(BaseModel):
+    id: int
+    name: str
+
+@dataclass
+class Order:
+    id: int
+    total: float
+
+convert([User(id=1, name="Alice"), User(id=2, name="Bob")], "csv")
+convert([Order(id=10, total=42.5)], "markdown")
+```
+
+> **Pydantic v1?** Pass `.dict()` yourself — only v2's `model_dump()` is auto-detected.
+
 **CLI:**
 
 ```bash

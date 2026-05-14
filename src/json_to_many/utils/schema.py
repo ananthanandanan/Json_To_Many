@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
-from .json_utils import flatten_json
+from .json_utils import flatten_json, normalize_input
 
 
 @dataclass
@@ -49,7 +50,8 @@ def _format_sample(value: object) -> str:
     return str(value)
 
 
-def analyze_schema(data: dict | list) -> SchemaResult:
+def analyze_schema(data: Any) -> SchemaResult:
+    data = normalize_input(data)
     records: list[dict] = []
     if isinstance(data, dict):
         records = [data]
