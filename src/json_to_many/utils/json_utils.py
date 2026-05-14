@@ -1,6 +1,21 @@
 # json_to_many/utils/file_utils.py
 import json
+from dataclasses import asdict, is_dataclass
+from typing import Any
+
 from .constants import DEFAULT_ENCODING
+
+
+def normalize_json_data(json_input: Any) -> Any:
+    if hasattr(json_input, "model_dump"):
+        return normalize_json_data(json_input.model_dump())
+    if is_dataclass(json_input) and not isinstance(json_input, type):
+        return normalize_json_data(asdict(json_input))
+    if isinstance(json_input, list):
+        return [normalize_json_data(item) for item in json_input]
+    if isinstance(json_input, dict):
+        return {key: normalize_json_data(value) for key, value in json_input.items()}
+    return json_input
 
 
 def read_json_data(json_input: str | dict | list) -> dict | list:
@@ -10,6 +25,7 @@ def read_json_data(json_input: str | dict | list) -> dict | list:
     :param json_input: Path to JSON file, a JSON string, or a Python data structure.
     :return: Parsed JSON data.
     """
+    json_input = normalize_json_data(json_input)
     if isinstance(json_input, (dict, list)):
         return json_input
     try:

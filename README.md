@@ -38,6 +38,19 @@ print(result.data)
 print(result.stats.rows)    # 5
 ```
 
+`convert()` also accepts Pydantic-style models with `model_dump()` and dataclass instances:
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class User:
+    id: int
+    name: str
+
+result = convert(User(id=1, name="Alice"), "csv")
+```
+
 **CLI:**
 
 ```bash
