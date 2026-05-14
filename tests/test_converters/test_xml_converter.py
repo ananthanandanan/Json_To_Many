@@ -117,6 +117,31 @@ class TestJsonToXML(unittest.TestCase):
         finally:
             os.unlink(path)
 
+    def test_xml_declaration_default_emits_prolog(self):
+        converter = JsonToXML({"x": "1"})
+        converter.converter()
+        result = converter.get_converted_data()
+        self.assertIn("<?xml", result.data)
+
+    def test_xml_declaration_false_omits_prolog(self):
+        converter = JsonToXML({"x": "1"}, xml_declaration=False)
+        converter.converter()
+        result = converter.get_converted_data()
+        self.assertNotIn("<?xml", result.data)
+
+    def test_xml_declaration_false_save_to_file(self):
+        converter = JsonToXML({"x": "1"}, xml_declaration=False)
+        converter.converter()
+        with tempfile.NamedTemporaryFile(suffix=".xml", delete=False) as f:
+            path = f.name
+        try:
+            converter.save_to_file(path)
+            with open(path, encoding="utf-8") as f:
+                contents = f.read()
+            self.assertNotIn("<?xml", contents)
+        finally:
+            os.unlink(path)
+
     def test_all_xml_options_combined(self):
         converter = JsonToXML(
             [{"val": "a"}, {"val": "b"}],

@@ -20,14 +20,19 @@ _SCHEMA_TO_SQL: dict[str, str] = {
 }
 
 
-def _escape(value: Any) -> str:
-    if value is None:
-        return "NULL"
-    if isinstance(value, bool):
-        return "1" if value else "0"
-    if isinstance(value, (int, float)):
-        return str(value)
-    return "'" + str(value).replace("'", "''") + "'"
+def _make_escape(null_value: str | None):
+    def _escape(value: Any) -> str:
+        if value is None:
+            if null_value is not None:
+                return "'" + null_value.replace("'", "''") + "'"
+            return "NULL"
+        if isinstance(value, bool):
+            return "1" if value else "0"
+        if isinstance(value, (int, float)):
+            return str(value)
+        return "'" + str(value).replace("'", "''") + "'"
+
+    return _escape
 
 
 class JsonToSQL(BaseConverter):
@@ -39,14 +44,21 @@ class JsonToSQL(BaseConverter):
         table: str = self.options.get("table", "data")
         batch_size: int = self.options.get("batch_size", 500)
         include_create: bool = self.options.get("include_create", False)
+        user_columns: list[str] | None = self.options.get("columns")
+        null_value: str | None = self.options.get("null_value")
+        flatten_sep: str = self.options.get("flatten_sep", ".")
+
+        escape = _make_escape(null_value)
 
         records: list[dict] = (
-            [flatten_json(r) for r in self.data]
+            [flatten_json(r, sep=flatten_sep) for r in self.data]
             if isinstance(self.data, list)
-            else [flatten_json(self.data)]
+            else [flatten_json(self.data, sep=flatten_sep)]
         )
 
-        columns: list[str] = list(dict.fromkeys(k for r in records for k in r))
+        columns: list[str] = user_columns or list(
+            dict.fromkeys(k for r in records for k in r)
+        )
         col_list = ", ".join(columns)
 
         parts: list[str] = []
@@ -65,7 +77,7 @@ class JsonToSQL(BaseConverter):
             batch = records[batch_start : batch_start + batch_size]
             value_rows = []
             for row in batch:
-                vals = ", ".join(_escape(row.get(col)) for col in columns)
+                vals = ", ".join(escape(row.get(col)) for col in columns)
                 value_rows.append(f"  ({vals})")
             parts.append(
                 f"INSERT INTO {table} ({col_list}) VALUES\n"
