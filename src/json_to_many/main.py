@@ -31,10 +31,12 @@ _READERS = {
 def _detect_input_format(json_input: Any, from_format: str | None) -> str | None:
     if from_format is not None:
         return from_format.lower()
-    if isinstance(json_input, str) and os.path.exists(json_input):
-        ext = os.path.splitext(json_input)[1].lower().lstrip(".")
-        if ext in _READERS:
-            return ext
+    if isinstance(json_input, (str, os.PathLike)):
+        path = os.fspath(json_input)
+        if os.path.exists(path):
+            ext = os.path.splitext(path)[1].lower().lstrip(".")
+            if ext in _READERS:
+                return ext
     return None
 
 

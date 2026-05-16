@@ -460,7 +460,92 @@ subdirectory.
 
 ---
 
-## 10. Getting the result as structured JSON for scripting
+## 10. You have a CSV and need it as JSON (or anything else)
+
+A vendor exports a CSV. Your service consumes JSON. Or the QA team hands you a CSV and you
+want a Markdown table for the bug report. Json2Many reads CSV through the same schema engine
+that powers `schema`, so types come back typed — not everything-as-string.
+
+```bash
+json2many convert users.csv --to json --output users.json
+# Converted: users.csv → users.json (5 rows, 6 fields)
+```
+
+The output is properly typed: `"42"` becomes `42`, `"true"` becomes `true`, `"8.4"` becomes
+`8.4`. Empty cells (and `N/A`, `NULL`) become `null` by default.
+
+```json
+[
+  {"id": 1, "name": "Alice Nguyen", "score": 8.4, "active": true, "address": {"city": "London"}},
+  {"id": 2, "name": "Bob Smith",    "score": 7.1, "active": true, "address": {"city": "Berlin"}}
+]
+```
+
+Dotted column names (`address.city`) unflatten back into nested objects automatically — so
+`JSON → CSV → JSON` round-trips losslessly on nested data.
+
+**Stdin needs an explicit `--from`** so the CLI doesn't have to guess:
+
+```bash
+curl -s https://reports.example.com/users.csv | json2many convert --from csv --to markdown
+```
+
+**Any output format works** — once CSV is parsed, the rest of the pipeline doesn't care
+where the data came from:
+
+```bash
+json2many convert users.csv --to markdown --output users.md
+json2many convert users.csv --to sql --table users --include-create --output seed.sql
+json2many convert users.csv --to html --output report.html
+```
+
+**From Python** — pass a path, a `Path`, an in-memory string, or any file-like object:
+
+```python
+from json_to_many import convert
+
+# File path — extension picks the reader
+result = convert("users.csv", "json", indent=2)
+
+# In-memory CSV string — be explicit
+csv_text = "id,name,active\n1,Alice,true\n2,Bob,false\n"
+result = convert(csv_text, "json", from_format="csv")
+
+# Opt out of type inference — every value stays a string
+result = convert("users.csv", "json", infer_types=False)
+
+# Custom null tokens
+result = convert("users.csv", "json", null_values=["", "unknown", "-"])
+
+# Headerless CSV — columns auto-named col_0, col_1, ...
+result = convert("rows.csv", "json", header=False)
+```
+
+**CLI flags for reader options:**
+
+| Flag | Effect |
+|---|---|
+| `--from {csv,json}` | Force the input format (required for stdin CSV). |
+| `--infer-types / --no-infer-types` | Toggle per-cell type inference. Default on. |
+| `--null-values empty,N/A,NULL` | Comma-separated tokens that become `null`. |
+| `--no-header` | Treat the first row as data, auto-name columns `col_0`, `col_1`, … |
+| `--delimiter ';'` | CSV field delimiter (applies to both reading and writing). |
+| `--quotechar "'"` | CSV quote character. |
+| `--flatten-sep '_'` | Separator used by the unflatten step (default `.`). |
+
+**Type inference rules** (per-cell, in order):
+
+1. Cell text matches one of `null_values` → `null`.
+2. Parses as `int` → `int` (note: this runs before float, so `"42"` stays an int, not `42.0`).
+3. Parses as `float` → `float`.
+4. Case-insensitive `true` / `false` → `bool`. Strict — `1`/`0` stay int, `yes`/`no` stay str.
+5. Anything else → `str`.
+
+When `infer_types=False`, only step 1 still applies; everything else stays a string.
+
+---
+
+## 11. Getting the result as structured JSON for scripting
 
 Both `convert` and `schema` have a `--json` flag that emits the full result as JSON. This
 makes every output scriptable with `jq` or any other tool:

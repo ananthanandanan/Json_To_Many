@@ -30,6 +30,9 @@ def _open_source(source: Any, encoding: str) -> io.StringIO:
         if isinstance(text, bytes):
             text = text.decode(encoding)
         return io.StringIO(text)
+    if isinstance(source, os.PathLike):
+        with open(source, "r", encoding=encoding, newline="") as f:
+            return io.StringIO(f.read())
     if isinstance(source, str):
         if os.path.exists(source):
             with open(source, "r", encoding=encoding, newline="") as f:
