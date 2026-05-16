@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .json_utils import flatten_json, normalize_input
+from .type_infer import infer_type as _infer_type
 
 
 @dataclass
@@ -18,24 +19,6 @@ class FieldInfo:
 class SchemaResult:
     record_count: int
     fields: list[FieldInfo] = field(default_factory=list)
-
-
-def _infer_type(value: object) -> str:
-    if value is None:
-        return "null"
-    if isinstance(value, bool):
-        return "bool"
-    if isinstance(value, int):
-        return "int"
-    if isinstance(value, float):
-        return "float"
-    if isinstance(value, str):
-        return "str"
-    if isinstance(value, list):
-        return "list"
-    if isinstance(value, dict):
-        return "object"
-    return "str"
 
 
 def _format_sample(value: object) -> str:
