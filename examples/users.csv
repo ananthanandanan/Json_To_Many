@@ -1,0 +1,6 @@
+id,name,email,score,active,address.city,address.country
+1,Alice Nguyen,alice@example.com,8.4,true,London,GB
+2,Bob Smith,bob@example.com,7.1,true,Berlin,DE
+3,Carol Diaz,,9.2,false,Madrid,ES
+4,Dan Park,dan@example.com,,true,Seoul,KR
+5,Eve Müller,eve@example.com,6.5,false,Munich,DE

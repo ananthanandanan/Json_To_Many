@@ -4,6 +4,7 @@ from .csv_converter import JsonToCSV
 from .html_converter import JsonToHTML
 from .jsonl_converter import JsonToJSONL
 from .sql_converter import JsonToSQL
+from .json_converter import JsonFormatter
 
 __all__ = [
     "JsonToMarkdown",
@@ -12,4 +13,5 @@ __all__ = [
     "JsonToHTML",
     "JsonToJSONL",
     "JsonToSQL",
+    "JsonFormatter",
 ]
