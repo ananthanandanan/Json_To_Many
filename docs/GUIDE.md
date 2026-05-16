@@ -222,6 +222,14 @@ Python API's `frontmatter=` argument instead.
 The receiving system expects XML. You control the element names and whether the output is
 pretty-printed for readability or compact for transmission:
 
+```bash
+json2many convert records.json --to xml \
+  --root-element records \
+  --item-element record \
+  --pretty-print \
+  --output records.xml
+```
+
 ```python
 result = convert("records.json", "xml",
     root_element="records",
@@ -296,6 +304,9 @@ All values are HTML-escaped — no XSS risk from data that contains `<`, `>`, or
 | `"bootstrap"` | Adds `class="table table-striped"` and a Bootstrap CDN link |
 
 A single dict (rather than a list) renders as a `<dl>` definition list instead of a table.
+
+`table_style` and `wrap_in_page` are Python-only — the CLI emits the plain default. Wrap the
+call in a tiny script when you need a styled, standalone page.
 
 ---
 
@@ -400,7 +411,63 @@ keyword. Omit the flag if you want the keyword.
 
 ---
 
-## 9. Your team keeps running conversions differently
+## 9. Convert straight from Pydantic models, dataclasses, or ORM rows
+
+You don't need to `.model_dump()` or `asdict()` before calling `convert`. Anything with a
+`model_dump()`, `to_dict()`, or `@dataclass` decorator is normalized automatically — and the
+check is duck-typed, so Pydantic isn't a hard dependency:
+
+```python
+from dataclasses import dataclass
+from json_to_many import convert
+
+@dataclass
+class User:
+    id: int
+    name: str
+    email: str
+
+users = [User(1, "Alice", "alice@example.com"),
+         User(2, "Bob",   "bob@example.com")]
+
+result = convert(users, "csv")
+```
+
+The same call works with a list of Pydantic models (any version — `model_dump` is detected
+duck-typed), SQLAlchemy rows that expose `to_dict()`, or any mix of plain dicts and objects.
+Precedence: `model_dump` → dataclass → `to_dict`.
+
+---
+
+## 10. Pretty-printing or normalizing JSON
+
+`--to json` is a first-class output format — useful for reformatting a minified payload,
+sorting keys for diff-friendly output, or chaining into another step that wants JSON back:
+
+```bash
+# Minified API response → readable, sorted
+json2many convert response.json --to json --indent 2 --sort-keys --output pretty.json
+
+# Round-trip CSV through JSON, sorted
+json2many convert users.csv --to json --sort-keys --indent 4 --output users.json
+```
+
+```python
+from json_to_many import convert
+
+result = convert(data, "json",
+    indent=4,
+    sort_keys=True,
+    ensure_ascii=False,   # preserves é, ñ, 漢 — set True to escape to \uXXXX
+)
+```
+
+`ensure_ascii` mirrors the stdlib `json` flag (CLI-only via the Python API — the CLI defaults
+to keeping unicode as-is).
+
+---
+
+## 11. Your team keeps running conversions differently
 
 Every developer runs the same conversion with different flags. One uses `--delimiter ';'`,
 another forgets it and gets commas, a third always forgets `--pretty-print` for XML. The
@@ -460,7 +527,7 @@ subdirectory.
 
 ---
 
-## 10. You have a CSV and need it as JSON (or anything else)
+## 12. You have a CSV and need it as JSON (or anything else)
 
 A vendor exports a CSV. Your service consumes JSON. Or the QA team hands you a CSV and you
 want a Markdown table for the bug report. Json2Many reads CSV through the same schema engine
@@ -519,6 +586,11 @@ result = convert("users.csv", "json", null_values=["", "unknown", "-"])
 
 # Headerless CSV — columns auto-named col_0, col_1, ...
 result = convert("rows.csv", "json", header=False)
+
+# Any file-like object also works — handy for in-process pipelines
+import io
+buf = io.StringIO("id,name\n1,Alice\n")
+result = convert(buf, "json", from_format="csv")
 ```
 
 **CLI flags for reader options:**
@@ -545,7 +617,7 @@ When `infer_types=False`, only step 1 still applies; everything else stays a str
 
 ---
 
-## 11. Getting the result as structured JSON for scripting
+## 13. Getting the result as structured JSON for scripting
 
 Both `convert` and `schema` have a `--json` flag that emits the full result as JSON. This
 makes every output scriptable with `jq` or any other tool:
@@ -562,3 +634,30 @@ json2many schema api_export.json --json \
 
 The `--json` flag on `convert` emits the full `ConversionResult` structure. The `--json` flag
 on `schema` emits the full `SchemaResult`. Both are stable — safe to rely on in scripts.
+
+---
+
+## 14. Catching errors cleanly
+
+The library raises a small typed hierarchy so callers can catch *only* what they expect
+without swallowing unrelated exceptions:
+
+```python
+from json_to_many import convert, JsonToManyError, UnsupportedFormatError
+
+try:
+    result = convert("data.json", "yaml")   # not a supported format
+except UnsupportedFormatError as exc:
+    print(f"Pick a different format: {exc}")
+except JsonToManyError as exc:
+    print(f"Conversion failed: {exc}")
+```
+
+- `JsonToManyError` — base class for everything the library raises. Catch this if you want
+  one umbrella.
+- `UnsupportedFormatError` — subclass of `JsonToManyError`, raised for unknown `output_format`
+  or `from_format` values.
+
+Standard library exceptions (`FileNotFoundError`, `json.JSONDecodeError`, `csv.Error`, etc.)
+propagate as-is — they're not wrapped. That keeps stack traces honest when the failure is
+upstream of the converter.
