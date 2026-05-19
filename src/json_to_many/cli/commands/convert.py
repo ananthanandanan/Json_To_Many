@@ -21,7 +21,7 @@ _FORMAT_EXTENSIONS: dict[str, str] = {
     "json": "json",
 }
 
-_INPUT_FORMATS = ("json", "csv")
+_INPUT_FORMATS = ("json", "csv", "jsonl")
 
 
 def _load_source(source: str, from_format: str | None) -> Any:
@@ -33,7 +33,7 @@ def _load_source(source: str, from_format: str | None) -> Any:
     """
     if source == "-":
         text = sys.stdin.read()
-        if from_format == "csv":
+        if from_format in ("csv", "jsonl"):
             return text
         return json.loads(text)
     return source
@@ -127,6 +127,13 @@ def _output_path(output_dir: str, source: str, fmt: str) -> str:
     help="Type inference when reading CSV. Default: --infer-types.",
 )
 @click.option(
+    "--strict/--no-strict",
+    "strict",
+    default=None,
+    help="JSONL: raise on the first malformed line. Default: --no-strict "
+    "(bad lines are skipped with a warning).",
+)
+@click.option(
     "--flatten-sep",
     default=None,
     help="Separator for flattened nested keys (CSV/SQL). Default: '.'. "
@@ -193,6 +200,7 @@ def convert_cmd(
     null_value: str | None,
     null_values: list[str] | None,
     infer_types: bool | None,
+    strict: bool | None,
     flatten_sep: str | None,
     indent: int | None,
     sort_keys: bool | None,
@@ -242,6 +250,7 @@ def convert_cmd(
         null_value=null_value,
         null_values=null_values,
         infer_types=infer_types,
+        strict=strict,
         flatten_sep=flatten_sep,
         indent=indent,
         sort_keys=sort_keys,
