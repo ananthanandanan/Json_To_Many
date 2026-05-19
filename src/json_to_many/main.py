@@ -7,6 +7,7 @@ from .converters.json_converter import JsonFormatter
 from .converters.jsonl_converter import JsonToJSONL
 from .converters.sql_converter import JsonToSQL
 from .readers.csv_reader import read_csv, CSV_READER_OPTIONS
+from .readers.jsonl_reader import read_jsonl, JSONL_READER_OPTIONS
 from .utils import read_json_data
 from .exceptions import UnsupportedFormatError
 from .utils import SUPPORTED_FORMATS
@@ -25,6 +26,7 @@ _CONVERTERS = {
 
 _READERS = {
     "csv": read_csv,
+    "jsonl": read_jsonl,
 }
 
 
@@ -56,9 +58,9 @@ def convert(
     :param output_format: Desired output format ('markdown', 'xml', 'csv',
         'html', 'jsonl', 'sql', 'json').
     :param output_file: (Optional) Path to the output file.
-    :param from_format: (Optional) Explicit input format ('csv', 'json'). When
-        omitted, file paths dispatch by extension and other inputs default to
-        JSON.
+    :param from_format: (Optional) Explicit input format ('csv', 'json',
+        'jsonl'). When omitted, file paths dispatch by extension and other
+        inputs default to JSON.
     :param options: Converter/reader options passed through.
     :return: ConversionResult with .data (string), .format, and .stats.
     """
@@ -77,11 +79,16 @@ def convert(
             k: options.pop(k) for k in list(options) if k in CSV_READER_OPTIONS
         }
         data = read_csv(json_input, **reader_opts)
+    elif src_fmt == "jsonl":
+        reader_opts = {
+            k: options.pop(k) for k in list(options) if k in JSONL_READER_OPTIONS
+        }
+        data = read_jsonl(json_input, **reader_opts)
     elif src_fmt in (None, "json"):
         data = read_json_data(json_input)
     else:
         raise UnsupportedFormatError(
-            f"Unsupported input format: {src_fmt}. Supported input formats are: json, csv"
+            f"Unsupported input format: {src_fmt}. Supported input formats are: json, csv, jsonl"
         )
 
     config = load_config()
