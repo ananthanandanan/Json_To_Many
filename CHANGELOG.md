@@ -1,8 +1,20 @@
+## [0.5.0] - 2026-05-20
+
+### 🚀 Features
+
+- Accept Pydantic models, dataclasses, and to_dict objects as input ([#23](https://github.com/ananthanandanan/Json_To_Many/issues/23))
+- CLI flag parity for converter options ([#5](https://github.com/ananthanandanan/Json_To_Many/issues/5)) ([#24](https://github.com/ananthanandanan/Json_To_Many/issues/24))
+- CSV → JSON reverse conversion ([#6](https://github.com/ananthanandanan/Json_To_Many/issues/6)) ([#25](https://github.com/ananthanandanan/Json_To_Many/issues/25))
+- JSONL → JSON reverse conversion ([#7](https://github.com/ananthanandanan/Json_To_Many/issues/7))
 ## [0.4.0] - 2026-05-02
 
 ### 🚀 Features
 
 - CLI, schema command, HTML/JSONL/SQL converters, project config
+
+### ⚙️ Miscellaneous Tasks
+
+- Release v0.4.0
 ## [0.3.0] - 2026-04-28
 
 ### 🚀 Features
