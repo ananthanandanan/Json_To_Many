@@ -72,6 +72,12 @@ json2many convert api_export.json --to csv --output report.csv
 
 # Multiple formats in one pass
 json2many convert api_export.json --to csv --to html --output-dir ./dist/
+
+# OpenAPI spec → clean Markdown API docs
+json2many convert openapi.json --to markdown --template openapi --output API.md
+
+# Re-convert on every save while you iterate
+json2many watch openapi.json --to markdown --template openapi --output API.md
 ```
 
 ---
@@ -80,7 +86,7 @@ json2many convert api_export.json --to csv --to html --output-dir ./dist/
 
 | Format | When to use | Options |
 |--------|-------------|---------|
-| `markdown` | Docs, wikis, changelogs | `title`, `heading_offset`, `max_heading_level`, `bullet_lists`, `table_for_lists`, `frontmatter`, `code_block_keys` |
+| `markdown` | Docs, wikis, changelogs | `title`, `heading_offset`, `max_heading_level`, `bullet_lists`, `table_for_lists`, `frontmatter`, `code_block_keys`, `template` (`openapi`) |
 | `xml` | Legacy system integration, data exchange | `root_element`, `item_element`, `pretty_print` |
 | `csv` | Spreadsheets, analyst handoff | `delimiter`, `quotechar`, `include_header`, `columns` |
 | `html` | Stakeholder reports, CI build artifacts | `title`, `table_style`, `wrap_in_page` |
