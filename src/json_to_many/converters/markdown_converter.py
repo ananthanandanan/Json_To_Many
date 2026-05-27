@@ -11,6 +11,16 @@ class JsonToMarkdown(BaseConverter):
         self.converted_data: str | None = None
 
     def converter(self) -> None:
+        template = self.options.get("template")
+        if template:
+            from ..templates import get_template
+
+            renderer = get_template(template)(self.data, **self.options)
+            self.converted_data = renderer.render()
+            # save_to_file() writes markdown_lines; keep it in sync with data.
+            self.markdown_lines = [self.converted_data]
+            self._stats = ConversionStats(rows=renderer.endpoint_count)
+            return
         frontmatter = self.options.get("frontmatter")
         if frontmatter is not None:
             self._emit_frontmatter(frontmatter)

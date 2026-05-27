@@ -661,3 +661,121 @@ except JsonToManyError as exc:
 Standard library exceptions (`FileNotFoundError`, `json.JSONDecodeError`, `csv.Error`, etc.)
 propagate as-is — they're not wrapped. That keeps stack traces honest when the failure is
 upstream of the converter.
+
+---
+
+## 15. Turning an OpenAPI spec into readable API docs
+
+An OpenAPI spec is precise but unreadable — nobody opens `openapi.json` to *understand* an
+API. This template turns it into plain Markdown that drops straight into the places people
+actually read and search:
+
+- **GitHub / GitLab** — commit `API.md` and it renders as a browsable reference right next to
+  the code, diffing in PRs as the API changes.
+- **Notion, Obsidian, Confluence** — paste or import the Markdown; tables, headings, and
+  anchor links all survive, so the reference lives in your team's wiki without a doc pipeline.
+- **Static docs sites** — feed it to MkDocs, Docusaurus, or mdBook, which take Markdown natively.
+- **LLM / RAG context** — Markdown is the friendliest format for putting an API into a model's
+  context window or a vector store. A flat, linked `API.md` is far better grounding for "write
+  a client for this endpoint" than raw spec JSON.
+
+```bash
+json2many convert openapi.json --to markdown --template openapi --output API.md
+```
+
+**You almost certainly already have the spec — don't write it by hand.** Most backend
+frameworks emit it for you: FastAPI serves it at `/openapi.json`, Spring via `springdoc`,
+NestJS via `@nestjs/swagger`, .NET via Swashbuckle, Django via `drf-spectacular`. If your app
+is running, skip the file on disk and pipe the live endpoint straight in:
+
+```bash
+curl localhost:8000/openapi.json | json2many convert - --to markdown --template openapi --output API.md
+```
+
+The `--template openapi` flag switches the Markdown converter from generic key/value descent
+into an OpenAPI-aware renderer. The output covers, in order:
+
+- an **info block** — title, version, description, and servers;
+- an **Authentication** section built from `components.securitySchemes` (API keys, bearer/JWT,
+  OAuth2 flows), with a per-endpoint `Security:` note;
+- **endpoints grouped by tag** — each operation under its first tag, untagged ones collected
+  under an `Other` section at the end;
+- **parameters, request bodies, and responses** as GitHub-flavored tables, with status codes;
+- a trailing **Schemas** section — every `$ref` renders as a link (e.g. `[Pet](#pet)`) into a
+  property table rendered once, so shared and even circular schemas stay DRY and terminate.
+
+Examples are emitted as fenced ` ```json ` blocks, and every table cell is escaped so a stray
+`|` in a description never breaks the layout.
+
+Preview before writing a file with `--dry-run`, or call it from Python:
+
+```python
+from json_to_many import convert
+
+convert("openapi.json", "markdown", template="openapi", output_file="API.md")
+```
+
+Supported spec versions are **OpenAPI 3.0 and 3.1**. A Swagger 2.0 spec, or any JSON that
+isn't an OpenAPI document, raises `JsonToManyError` with a message explaining what was
+expected — so a wrong file in a CI step fails loudly rather than producing nonsense.
+
+## 16. Live-reload: keep output in sync while you edit (`watch`)
+
+`json2many watch` is `convert` on a loop — the `tsc --watch` / `sass --watch` ergonomic
+applied to "source file in, formatted output out." When you're iterating on a file and want
+to *see the rendered result* without re-running the command, point `watch` at it and leave it
+running.
+
+**The everyday case — a live-previewed report from a data file.** You're tweaking a JSON file
+(a team roster, a config dump, exported query results) and want an HTML view that stays
+current:
+
+```bash
+json2many watch . --from json --to html --output-dir out/
+# Watching 1 file(s). Press Ctrl+C to stop.
+# [14:20:03] ./team.json → out/team.html
+```
+
+Open `out/team.html` in a browser tab. Now the loop is: edit `team.json` → save → `watch`
+regenerates the HTML → refresh the tab. You iterate on the *data* and see the *rendered
+report*, never touching the command again. Swap `--to html` for `--to markdown` and preview
+in your editor (VS Code: `Cmd+Shift+V`) instead.
+
+**Regenerating SQL seed data from fixtures.** Editing JSON fixtures for integration tests and
+want a fresh seed file each save:
+
+```bash
+json2many watch fixtures/ --to sql --table users --include-create --output-dir build/
+```
+
+Edit a fixture, and `build/<name>.sql` rebuilds with updated `CREATE` + `INSERT`s, ready to
+pipe into your test DB.
+
+### How it works
+
+`SOURCE` may be a file or a directory. A directory is scanned for every supported input
+extension (`json`, `csv`, `jsonl`); pass `--from json` to narrow that. Each changed input is
+converted into `--output-dir`, auto-named by its stem — the same naming `convert --output-dir`
+uses. New files dropped into a watched directory are picked up on the next scan, and a file
+that fails to convert logs an error and is retried on its next change rather than killing the
+loop.
+
+Detection is plain `os.stat()` mtime polling (default every 250 ms, tune with `--interval`) —
+no `watchdog` dependency, keeping the base install dependency-free. Every `convert` flag for
+the chosen format applies (`--columns`, `--table`, `--template`, …), so anything `convert`
+can produce, `watch` can keep live. Press `Ctrl+C` to stop.
+
+> **`watch` watches files on disk, not URLs.** It can't poll an HTTP endpoint — so the
+> `curl localhost:8000/openapi.json | convert -` pattern from §15 doesn't combine with
+> `watch`. Use `watch` when you're editing a spec or data file that lives in your repo; use the
+> `curl` one-liner (or a git hook / CI step) for a spec your framework serves over HTTP.
+
+### Editing an OpenAPI spec? Same loop, add `--template openapi`
+
+If you maintain `openapi.json` by hand (design-first), `watch` gives you live API docs as you
+edit — split-screen the spec and the rendered `docs/openapi.md` preview:
+
+```bash
+json2many watch . --from json --to markdown --template openapi --output-dir docs/
+# [14:02:11] ./openapi.json → docs/openapi.md
+```

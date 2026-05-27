@@ -1,0 +1,62 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Blog API",
+    "version": "2.3.0",
+    "description": "A minimal blog API demonstrating OpenAPI 3.1 features."
+  },
+  "tags": [
+    { "name": "Posts", "description": "Blog post operations" }
+  ],
+  "paths": {
+    "/posts": {
+      "get": {
+        "tags": ["Posts"],
+        "summary": "List posts",
+        "responses": {
+          "200": {
+            "description": "Posts",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Post" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Liveness probe",
+        "responses": {
+          "200": {
+            "description": "Service healthy",
+            "content": { "application/json": { "schema": { "type": "object" }, "example": { "status": "ok" } } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Post": {
+        "type": "object",
+        "required": ["id", "title"],
+        "properties": {
+          "id": { "type": "integer" },
+          "title": { "type": "string" },
+          "subtitle": { "type": ["string", "null"], "description": "Optional subtitle" },
+          "author": { "$ref": "#/components/schemas/Author" },
+          "rating": { "oneOf": [{ "type": "integer" }, { "type": "number" }] }
+        }
+      },
+      "Author": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "email": { "type": "string", "format": "email" }
+        }
+      }
+    }
+  }
+}
