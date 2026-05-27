@@ -216,11 +216,13 @@ class OpenApiTemplate:
         self.lines.append("| Name | In | Type | Required | Description |\n")
         self.lines.append("| --- | --- | --- | --- | --- |\n")
         for p in resolved:
-            ptype = self._type_of(p.get("schema", {})) if p.get("schema") else ""
+            schema = p.get("schema") or {}
+            ptype = self._type_of(schema) if schema else ""
             required = "yes" if p.get("required") else "no"
+            desc = self._describe(p.get("description", ""), schema)
             self.lines.append(
                 f"| {self._esc(p.get('name', ''))} | {self._esc(p.get('in', ''))} "
-                f"| {ptype} | {required} | {self._esc(p.get('description', ''))} |\n"
+                f"| {ptype} | {required} | {desc} |\n"
             )
         self.lines.append("\n")
 
@@ -321,8 +323,9 @@ class OpenApiTemplate:
                     fschema.get("description", "") if isinstance(fschema, dict) else ""
                 )
                 req = "yes" if fname in required else "no"
+                desc = self._describe(fdesc, fschema)
                 self.lines.append(
-                    f"| {self._esc(fname)} | {ftype} | {req} | {self._esc(fdesc)} |\n"
+                    f"| {self._esc(fname)} | {ftype} | {req} | {desc} |\n"
                 )
             self.lines.append("\n")
         else:
@@ -405,6 +408,24 @@ class OpenApiTemplate:
         """GitHub-style heading slug: lowercase, punctuation stripped."""
         slug = re.sub(r"[^\w\- ]", "", str(text).strip().lower())
         return slug.replace(" ", "-")
+
+    def _describe(self, description: Any, schema: Any) -> str:
+        """Escaped description cell, appending an enum's allowed values.
+
+        Enum values are the detail readers reach for ("what may I pass?"), so
+        surface them inline next to the type. Mirrors the standalone-schema
+        "Allowed values" wording in ``_render_one_schema``.
+        """
+        text = "" if description is None else str(description)
+        enum = schema.get("enum") if isinstance(schema, dict) else None
+        if isinstance(enum, list) and enum:
+            values = ", ".join(f"`{v}`" for v in enum)
+            text = (
+                f"{text} (allowed values: {values})"
+                if text
+                else f"Allowed values: {values}"
+            )
+        return self._esc(text)
 
     @staticmethod
     def _esc(value: Any) -> str:

@@ -117,6 +117,12 @@ class TestOpenApiBehaviour(unittest.TestCase):
         self.assertIn("bearer (JWT)", library)
         self.assertIn("**Security:** oauth2, bearerAuth", library)
 
+    def test_enum_values_surfaced(self):
+        out = render_fixture("petstore.json")
+        # Enum allowed values appear inline; with a description they are
+        # parenthetical, otherwise a standalone "Allowed values:" clause.
+        self.assertIn("(allowed values: `available`, `pending`, `sold`)", out)
+
     def test_oas_31_nullable_and_oneof(self):
         out = render_fixture("blog_3_1.json")
         self.assertIn("string (nullable)", out)  # type: ["string", "null"]

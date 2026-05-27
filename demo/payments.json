@@ -1,0 +1,226 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Payments API",
+    "version": "2.1.0",
+    "description": "Create and manage payments, refunds, and customer balances."
+  },
+  "servers": [
+    { "url": "https://api.acmepay.com/v2", "description": "Production" },
+    { "url": "https://sandbox.acmepay.com/v2", "description": "Sandbox" }
+  ],
+  "security": [{ "bearerAuth": [] }],
+  "tags": [
+    { "name": "Payments", "description": "Charge a card and track its status" },
+    { "name": "Refunds", "description": "Return funds to a customer" }
+  ],
+  "paths": {
+    "/payments": {
+      "get": {
+        "tags": ["Payments"],
+        "summary": "List payments",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Filter by payment status",
+            "schema": {
+              "type": "string",
+              "enum": ["pending", "succeeded", "failed"]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum number of payments to return (1-100)",
+            "schema": { "type": "integer", "format": "int32" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of payments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Payment" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Payments"],
+        "summary": "Create a payment",
+        "description": "Charges the customer's payment method. Pass an Idempotency-Key header to safely retry.",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "Unique key to deduplicate retried requests",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreatePaymentRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Payment created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Payment" }
+              }
+            }
+          },
+          "402": {
+            "description": "The card was declined",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/{id}/refunds": {
+      "post": {
+        "tags": ["Refunds"],
+        "summary": "Refund a payment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The payment to refund",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RefundRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Refund issued",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Refund" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Payment": {
+        "type": "object",
+        "required": ["id", "amount", "currency", "status"],
+        "properties": {
+          "id": { "type": "string", "description": "Unique payment identifier" },
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Amount charged, in the smallest currency unit (e.g. cents)"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Three-letter ISO 4217 currency code"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "succeeded", "failed"],
+            "description": "Current lifecycle state of the payment"
+          },
+          "customer_id": { "type": "string", "description": "Customer who was charged" },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the payment was created"
+          }
+        }
+      },
+      "CreatePaymentRequest": {
+        "type": "object",
+        "required": ["amount", "currency", "customer_id"],
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Amount to charge, in the smallest currency unit"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Three-letter ISO 4217 currency code"
+          },
+          "customer_id": {
+            "type": "string",
+            "description": "Customer to charge"
+          },
+          "description": {
+            "type": "string",
+            "description": "Arbitrary note shown on the customer's statement"
+          }
+        }
+      },
+      "RefundRequest": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Amount to refund; omit to refund the full payment"
+          },
+          "reason": {
+            "type": "string",
+            "enum": ["duplicate", "fraudulent", "requested_by_customer"]
+          }
+        }
+      },
+      "Refund": {
+        "type": "object",
+        "required": ["id", "payment_id", "amount", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "payment_id": { "type": "string" },
+          "amount": { "type": "integer", "format": "int64" },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "succeeded", "failed"]
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": { "type": "string", "description": "Machine-readable error code" },
+          "message": { "type": "string", "description": "Human-readable explanation" }
+        }
+      }
+    }
+  }
+}

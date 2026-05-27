@@ -125,4 +125,4 @@ Inventory by status
 | id | integer (int64) | yes | Unique id |
 | name | string | yes | The pet's name |
 | tag | string | no |  |
-| status | string | no | Pet status \| lifecycle |
+| status | string | no | Pet status \| lifecycle (allowed values: `available`, `pending`, `sold`) |
