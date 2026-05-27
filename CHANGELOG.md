@@ -1,3 +1,13 @@
+## [0.6.0] - 2026-05-27
+
+### 🚀 Features
+
+- OpenAPI → Markdown template + watch command ([#27](https://github.com/ananthanandanan/Json_To_Many/issues/27))
+- *(openapi)* Surface enum allowed values in tables
+
+### ⚙️ Miscellaneous Tasks
+
+- Add v0.5 demo gif and tape
 ## [0.5.0] - 2026-05-20
 
 ### 🚀 Features
@@ -6,6 +16,10 @@
 - CLI flag parity for converter options ([#5](https://github.com/ananthanandanan/Json_To_Many/issues/5)) ([#24](https://github.com/ananthanandanan/Json_To_Many/issues/24))
 - CSV → JSON reverse conversion ([#6](https://github.com/ananthanandanan/Json_To_Many/issues/6)) ([#25](https://github.com/ananthanandanan/Json_To_Many/issues/25))
 - JSONL → JSON reverse conversion ([#7](https://github.com/ananthanandanan/Json_To_Many/issues/7))
+
+### ⚙️ Miscellaneous Tasks
+
+- Release v0.5.0
 ## [0.4.0] - 2026-05-02
 
 ### 🚀 Features
