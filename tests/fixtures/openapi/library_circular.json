@@ -1,0 +1,59 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Library API",
+    "version": "0.9.0",
+    "description": "Books and authors, with circular references between them."
+  },
+  "paths": {
+    "/books/{isbn}": {
+      "get": {
+        "tags": ["Books"],
+        "summary": "Get a book",
+        "security": [{ "oauth2": ["books:read"] }, { "bearerAuth": [] }],
+        "parameters": [
+          { "name": "isbn", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "A book",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Book" } } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://auth.example.com/authorize",
+            "tokenUrl": "https://auth.example.com/token",
+            "scopes": { "books:read": "Read books" }
+          }
+        }
+      },
+      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
+    },
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "required": ["isbn", "title"],
+        "properties": {
+          "isbn": { "type": "string" },
+          "title": { "type": "string" },
+          "author": { "$ref": "#/components/schemas/Author" }
+        }
+      },
+      "Author": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "books": { "type": "array", "items": { "$ref": "#/components/schemas/Book" } }
+        }
+      }
+    }
+  }
+}

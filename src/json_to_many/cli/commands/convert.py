@@ -159,6 +159,13 @@ def _output_path(output_dir: str, source: str, fmt: str) -> str:
     "--pretty-print", is_flag=True, default=False, help="Pretty-print XML output."
 )
 # Markdown options
+@click.option(
+    "--template",
+    default=None,
+    type=click.Choice(["openapi"], case_sensitive=False),
+    help="Render Markdown with a structure-aware template. 'openapi' renders "
+    "an OpenAPI 3.0/3.1 spec as API docs (endpoints, schemas, auth).",
+)
 @click.option("--title", default=None, help="Markdown document title.")
 @click.option(
     "--heading-offset",
@@ -207,6 +214,7 @@ def convert_cmd(
     root_element: str | None,
     item_element: str | None,
     pretty_print: bool,
+    template: str | None,
     title: str | None,
     heading_offset: int | None,
     frontmatter: dict[str, str] | None,
@@ -227,6 +235,7 @@ def convert_cmd(
       json2many convert data.json --to xml --dry-run
       json2many convert data.json --to csv --columns id,name,email
       json2many convert data.json --to sql --table users --include-create
+      json2many convert openapi.json --to markdown --template openapi --output API.md
     """
     if output_file and len(formats) > 1:
         raise click.UsageError("--output can only be used with a single --to format.")
@@ -257,6 +266,7 @@ def convert_cmd(
         root_element=root_element,
         item_element=item_element,
         pretty_print=pretty_print if pretty_print else None,
+        template=template,
         title=title,
         heading_offset=heading_offset,
         frontmatter=frontmatter,
