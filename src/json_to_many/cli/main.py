@@ -14,6 +14,7 @@ except ImportError:
 else:
     from .commands.convert import convert_cmd
     from .commands.schema import schema_cmd
+    from .commands.watch import watch_cmd
 
     @click.group()
     def cli() -> None:
@@ -21,3 +22,4 @@ else:
 
     cli.add_command(convert_cmd, name="convert")
     cli.add_command(schema_cmd, name="schema")
+    cli.add_command(watch_cmd, name="watch")
