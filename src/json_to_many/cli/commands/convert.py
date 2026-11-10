@@ -281,7 +281,13 @@ def convert_cmd(
             if output_file:
                 out_path = output_file
             elif output_dir:
-                os.makedirs(output_dir, exist_ok=True)
+                try:
+                    os.makedirs(output_dir, exist_ok=True)
+                except OSError as exc:
+                    raise click.ClickException(
+                        f"Cannot create output directory {output_dir!r}: "
+                        f"{exc.strerror or exc}"
+                    ) from exc
                 out_path = _output_path(output_dir, source, fmt)
 
         try:
